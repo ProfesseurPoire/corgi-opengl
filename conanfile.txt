@@ -1,0 +1,14 @@
+[requires]
+sdl/2.0.20
+glad/0.1.36
+
+[generators]
+cmake
+
+[options]
+sdl:shared=True
+glad:gl_version=4.6
+
+[imports]
+bin, *.dll -> ../build/bin     # Copies all dll files from packages bin folder to my "bin" folder
+bin, *.dll -> ../build     # Copies all dll files from packages bin folder to my "build" folder
