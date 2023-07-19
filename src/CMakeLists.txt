@@ -1,1 +1,1 @@
-target_sources(${PROJECT_NAME} PRIVATE mesh.cpp shader.cpp shader.cpp)
+target_sources(${PROJECT_NAME} PRIVATE mesh.cpp shader.cpp shader.cpp "../include/corgi/opengl/primitives.h" "primitives.cpp" "../include/corgi/opengl/buffer.h" "buffer.cpp")

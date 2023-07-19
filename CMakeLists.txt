@@ -3,17 +3,14 @@ cmake_minimum_required(VERSION 3.20)
 project(corgi-opengl DESCRIPTION "ProjectDescription" LANGUAGES CXX VERSION 1.0.0)
 
 
-include(conan/conanbuildinfo.cmake)
-conan_basic_setup()
-
 set(CMAKE_DEBUG_POSTFIX d)
 
 add_library(${PROJECT_NAME} STATIC "")
 
+find_package(SDL2 REQUIRED)
+find_package(glad REQUIRED)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC ${CONAN_LIBS})
-target_include_directories(${PROJECT_NAME} PUBLIC ${CONAN_INCLUDE_DIRS})
-
+target_link_libraries(${PROJECT_NAME} PUBLIC SDL2::SDL2main glad::glad)
 
 # Setting warning level. WX and Werror means warnings are treated as errors.
 if(MSVC)
@@ -59,7 +56,6 @@ install(FILES
           "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
         DESTINATION lib/cmake/${PROJECT_NAME}
 )
-
 
 
 # Tests
