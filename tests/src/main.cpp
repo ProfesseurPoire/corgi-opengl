@@ -2,7 +2,9 @@
 #include <SDL2/SDL_main.h>
 #include <corgi/opengl/buffer.h>
 #include <corgi/opengl/shader.h>
+#include <corgi/opengl/program.h>
 #include <glad/glad.h>
+#include <corgi/opengl/vertex_array.h>
 
 #include <bit>
 #include <bitset>
@@ -87,27 +89,17 @@ int main(int argc, char** argv)
     SDL_GL_MakeCurrent(window, context);
     SDL_GL_SetSwapInterval(0);
 
-    auto circle = build_circle(0, 0, 0.2f, 100);
+    auto circle = build_circle(0, 0, 0.2f, 50);
 
     glClearColor(0.8F, 0.8F, 0.8F, 1.0F);
 
     corgi::buffer vertex_buffer(corgi::buffer_type::array_buffer);
     corgi::buffer index_buffer(corgi::buffer_type::element_array_buffer);
-
-    GLuint vao;
-    glGenVertexArrays(1, &vao);
-
-    glBindVertexArray(vao);
-
+    
     vertex_buffer.set_data(circle.vertices);
     index_buffer.set_data(circle.indexes);
 
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0,
-                          (void*)(0 * sizeof(GL_FLOAT)));
-
-    glBindVertexArray(0);
-    glDisableVertexAttribArray(0);
+    corgi::vertex_array vao({{0, 0, 2}}, vertex_buffer, index_buffer);
 
     auto vs_str =
         R"(
@@ -129,11 +121,7 @@ int main(int argc, char** argv)
     corgi::shader vs(vs_str, corgi::shader_type::vertex);
     corgi::shader fs(fs_str, corgi::shader_type::fragment);
 
-    auto program = glCreateProgram();
-
-    glAttachShader(program, vs.id());
-    glAttachShader(program, fs.id());
-    glLinkProgram(program);
+    corgi::program prog(vs, fs);
 
     while(!quit)
     {
@@ -149,15 +137,16 @@ int main(int argc, char** argv)
             }
         }
 
-        glUseProgram(program);
-
-        glBindVertexArray(vao);
+        prog.use();
+        vao.bind();
         glDrawElements(GL_TRIANGLES,
                        static_cast<GLsizei>(circle.indexes.size()),
                        GL_UNSIGNED_INT, (void*)0);
 
         glBindVertexArray(0);
-        glUseProgram(0);
+
+
+        prog.end();
 
         SDL_GL_SwapWindow(window);
     }

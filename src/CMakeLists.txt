@@ -1,1 +1,1 @@
-target_sources(${PROJECT_NAME} PRIVATE mesh.cpp shader.cpp shader.cpp "../include/corgi/opengl/primitives.h" "primitives.cpp" "../include/corgi/opengl/buffer.h" "buffer.cpp")
+target_sources(${PROJECT_NAME} PRIVATE program.cpp mesh.cpp shader.cpp shader.cpp "../include/corgi/opengl/primitives.h" "primitives.cpp" "../include/corgi/opengl/buffer.h" "buffer.cpp" "../include/corgi/opengl/vertex_array.h" "vertex_array.cpp" "../include/corgi/opengl/shaders.h" "../include/corgi/opengl/vertex_attribute.h" "../include/corgi/opengl/render_object.h" "../include/corgi/opengl/material.h")

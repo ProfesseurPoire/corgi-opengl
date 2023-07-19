@@ -6,8 +6,9 @@
 
 namespace corgi
 {
-shader::shader(const std::string& content, shader_type shader_type)
+shader::shader(const std::string& content,std::vector<vertex_attribute> attributes, shader_type shader_type)
     : shader_type_(shader_type)
+    , vertex_attributes_(attributes)
 {
 
     switch(shader_type_)
@@ -46,6 +47,11 @@ shader::shader(const std::string& content, shader_type shader_type)
 bool shader::compiled()
 {
     return success_;
+}
+
+const std::vector<vertex_attribute>& shader::vertex_attributes()const
+{
+    return vertex_attributes_;
 }
 
 shader::~shader()

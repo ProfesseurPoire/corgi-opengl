@@ -1,6 +1,9 @@
 #pragma once
 
 #include <string>
+#include <vector>
+#include <corgi/opengl/vertex_attribute.h>
+
 
 namespace corgi
 {
@@ -15,7 +18,10 @@ class shader
 public:
     // Lifecycle
 
-    shader(const std::string& content, shader_type shader_type);
+    /*!
+     * The vertex attributes the shader is supposed to be working with 
+     */
+    shader(const std::string& content, std::vector<vertex_attribute> vertex_attributes, shader_type shader_type);
     ~shader();
 
     shader(const shader& other) = delete;
@@ -39,11 +45,16 @@ public:
 
     long long memory_usage() const;
 
+    const std::vector<vertex_attribute>& vertex_attributes() const;
+
 private:
+
     unsigned          id_;
     const std::string source_;
     const std::string name_;
     shader_type       shader_type_;
     bool              success_ {false};
+
+    std::vector<vertex_attribute> vertex_attributes_;
 };
 }    // namespace corgi
