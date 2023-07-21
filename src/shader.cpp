@@ -1,8 +1,8 @@
 #include <corgi/opengl/shader.h>
 #include <glad/glad.h>
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
 namespace corgi
 {
@@ -13,8 +13,9 @@ shader::shader(std::string                   source,
     , shader_type_(shader_type)
     , vertex_attributes_(std::move(vertex_attributes))
 {
-    assert(!vertex_attributes_.empty()); // Vertex attributes must not be empty
-    assert(!source_.empty()); // shader source code must not be empty
+    assert(
+        !vertex_attributes_.empty());    // Vertex attributes must not be empty
+    assert(!source_.empty());            // shader source code must not be empty
 
     create_shader();
     compile_shader();
@@ -26,8 +27,9 @@ shader::shader(const shader_content& s)
     , shader_type_(s.shader_type)
     , vertex_attributes_(s.attributes)
 {
-    assert(!vertex_attributes_.empty());    // Vertex attributes must not be empty
-    assert(!source_.empty());               // shader source code must not be empty
+    assert(
+        !vertex_attributes_.empty());    // Vertex attributes must not be empty
+    assert(!source_.empty());            // shader source code must not be empty
 
     create_shader();
     compile_shader();
@@ -37,11 +39,6 @@ shader::shader(const shader_content& s)
 const std::string& shader::source() const
 {
     return source_;
-}
-
-bool shader::compiled() const
-{
-    return success_;
 }
 
 const std::vector<vertex_attribute>& shader::vertex_attributes() const
@@ -61,7 +58,8 @@ void shader::create_shader()
             id_ = glCreateShader(GL_VERTEX_SHADER);
             break;
     }
-    assert("Id is equal to 0 after creation" && id_ != 0);
+    // Id should not be equal to 0 after creation
+    assert(id_ != 0);
 }
 
 void shader::compile_shader()
@@ -78,17 +76,16 @@ void shader::check_compile_status()
 
     if(success == GL_FALSE)
     {
-        success_         = false;
         GLint max_length = 0;
         glGetShaderiv(id_, GL_INFO_LOG_LENGTH, &max_length);
-        std::string errorLog(max_length, ' ');
-        glGetShaderInfoLog(id_, max_length, &max_length, &errorLog[0]);
-        std::cerr << errorLog << std::endl;
+
+        std::string error(max_length, ' ');
+        glGetShaderInfoLog(id_, max_length, &max_length, &error[0]);
+
+        std::cerr << error << std::endl;
         glDeleteShader(id_);
-        assert("Shader could not be compiled" && (success != GL_FALSE));
+        assert(false);
     }
-    else
-        success_ = true;
 }
 
 shader::~shader()

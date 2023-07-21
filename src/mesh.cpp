@@ -12,29 +12,26 @@ mesh::mesh(std::vector<float>            vertices,
     : vertices_(std::move(vertices))
     , indexes_(std::move(indexes))
     , primitive_(primitive_type)
-   
 {
-    assert("Error : vertex_attributes is empty" && !vertex_attributes.empty());
-    assert("Error : vertices vector is empty" && !vertices_.empty());
-    assert("Error : indexes vector is empty" && !indexes_.empty());
+    assert(!vertex_attributes.empty());
+    assert(!vertices_.empty());
+    assert(!indexes_.empty());
 
-    assert("Error : vertices count isn't a multiple of vertex_attribute "
-           "size" &&
-           vertices_.size() % attributes_total_size(vertex_attributes) != 0);
+    assert(vertices_.size() % attributes_total_size(vertex_attributes) != 0);
 
     switch(primitive_)
     {
         case primitive_type::lines:
-            assert("Error : indexes count isn't a multiple of 2 (lines)" &&
-                   indexes_.size() % 2 != 0);
+            assert(indexes_.size() % 2 != 0);
+            break;
 
         case primitive_type::quads:
-            assert("Error : indexes count isn't a multiple of 4 (quads)" &&
-                   indexes_.size() % 4 != 0);
+            assert(indexes_.size() % 4 != 0);
+            break;
 
         case primitive_type::triangles:
-            assert("Error : indexes count isn't a multiple of 3 (triangles)"  && indexes_.size() %
-                       3 != 0) ;
+            assert(indexes_.size() % 3 != 0);
+            break;
     }
 
     vertex_buffer_ = std::make_unique<buffer>(buffer_type::array_buffer);

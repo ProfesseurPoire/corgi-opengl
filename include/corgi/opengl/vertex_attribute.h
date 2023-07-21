@@ -1,4 +1,5 @@
 #pragma once
+#include <cassert>
 #include <numeric>
 #include <vector>
 
@@ -12,6 +13,15 @@ struct vertex_attribute
     int location {0};
     int offset {0};
     int size {0};
+
+    vertex_attribute(int location, int offset, int size)
+        : location(location)
+        , offset(offset)
+        , size(size)
+    {
+        // size must be in between 1 and 4
+        assert(size >= 1 && size < 5);
+    }
 
     bool operator==(const vertex_attribute& other) const
     {
@@ -29,7 +39,8 @@ inline int
 attributes_total_size(const std::vector<vertex_attribute>& attributes)
 {
     return std::accumulate(attributes.begin(), attributes.end(), 0,
-                           [](int sum, const vertex_attribute& v) { return sum +v.size; });
+                           [](int sum, const vertex_attribute& v)
+                           { return sum + v.size; });
 }
 
 namespace common_attributes

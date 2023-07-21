@@ -1,8 +1,8 @@
 #include <corgi/opengl/program.h>
 #include <glad/glad.h>
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
 namespace corgi
 {
@@ -31,6 +31,19 @@ program::program(shader& vertex_shader, shader& fragment_shader)
     glAttachShader(id_, fragment_shader_->id());
     glLinkProgram(id_);
 
+    GLint isLinked = 0;
+    glGetProgramiv(id_, GL_LINK_STATUS, &isLinked);
+    if(isLinked == GL_FALSE)
+    {
+        GLint maxLength = 0;
+        glGetProgramiv(id_, GL_INFO_LOG_LENGTH, &maxLength);
+
+        std::string error(maxLength, ' ');
+        glGetProgramInfoLog(id_, maxLength, &maxLength, &error[0]);
+
+        std::cerr << error << std::endl;
+        glDeleteProgram(id_);
+    }
 }
 
 const std::vector<vertex_attribute>& program::vertex_attributes() const
@@ -38,19 +51,16 @@ const std::vector<vertex_attribute>& program::vertex_attributes() const
     return vertex_shader_->vertex_attributes();
 }
 
-program::program(program&& other) noexcept 
+program::program(program&& other) noexcept
 {
-    id_ = other.id_;
-    vertex_shader_ = other.vertex_shader_;
+    id_              = other.id_;
+    vertex_shader_   = other.vertex_shader_;
     fragment_shader_ = other.fragment_shader_;
 
-    other.id_ = 0;
-    other.vertex_shader_ = nullptr;
+    other.id_              = 0;
+    other.vertex_shader_   = nullptr;
     other.fragment_shader_ = nullptr;
 }
-
-
-
 
 program& program::operator=(program&& other) noexcept
 {
@@ -72,12 +82,13 @@ program::~program()
     glDeleteProgram(id_);
 }
 
-void program::use() 
+void program::use()
 {
     glUseProgram(id_);
 }
 
-void program::end() {
+void program::end()
+{
     glUseProgram(0);
 }
 
