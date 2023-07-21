@@ -1,16 +1,51 @@
 #include <corgi/opengl/shader.h>
 #include <glad/glad.h>
 
-#include <fstream>
 #include <iostream>
 
 namespace corgi
 {
-shader::shader(const std::string& content,std::vector<vertex_attribute> attributes, shader_type shader_type)
-    : shader_type_(shader_type)
-    , vertex_attributes_(attributes)
+shader::shader(std::string                   source,
+               std::vector<vertex_attribute> vertex_attributes,
+               const shader_type             shader_type)
+    : source_(std::move(source))
+    , shader_type_(shader_type)
+    , vertex_attributes_(std::move(vertex_attributes))
 {
 
+    create_shader();
+    compile_shader();
+    check_compile_status();
+}
+
+shader::shader(const shader_content& s)
+    : source_(s.content)
+    , shader_type_(s.shader_type)
+    , vertex_attributes_(s.attributes)
+{
+
+    create_shader();
+    compile_shader();
+    check_compile_status();
+}
+
+const std::string& shader::source() const
+{
+    return source_;
+}
+
+bool shader::compiled() const
+{
+    return success_;
+}
+
+const std::vector<vertex_attribute>& shader::vertex_attributes() const
+{
+    return vertex_attributes_;
+}
+
+void shader::create_shader()
+{
     switch(shader_type_)
     {
         case shader_type::fragment:
@@ -21,12 +56,18 @@ shader::shader(const std::string& content,std::vector<vertex_attribute> attribut
             id_ = glCreateShader(GL_VERTEX_SHADER);
             break;
     }
+}
 
-    auto c = content.c_str();
+void shader::compile_shader()
+{
+    auto c = source_.c_str();
 
     glShaderSource(id_, 1, &c, NULL);
     glCompileShader(id_);
+}
 
+void shader::check_compile_status()
+{
     GLint success = 0;
     glGetShaderiv(id_, GL_COMPILE_STATUS, &success);
 
@@ -44,25 +85,9 @@ shader::shader(const std::string& content,std::vector<vertex_attribute> attribut
         success_ = true;
 }
 
-bool shader::compiled()
-{
-    return success_;
-}
-
-const std::vector<vertex_attribute>& shader::vertex_attributes()const
-{
-    return vertex_attributes_;
-}
-
 shader::~shader()
 {
     glDeleteShader(id_);
 }
 
-long long shader::memory_usage() const
-{
-    // NOT IMPLEMENTED
-    // Also not exactly sure what I should be returning here lol
-    return 0;
-}
 }    // namespace corgi

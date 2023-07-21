@@ -1,10 +1,12 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_main.h>
 #include <corgi/opengl/buffer.h>
-#include <corgi/opengl/shader.h>
 #include <corgi/opengl/program.h>
-#include <glad/glad.h>
+#include <corgi/opengl/renderer.h>
+#include <corgi/opengl/shader.h>
+#include <corgi/opengl/shaders.h>
 #include <corgi/opengl/vertex_array.h>
+#include <glad/glad.h>
 
 #include <bit>
 #include <bitset>
@@ -12,18 +14,20 @@
 #include <numbers>
 #include <vector>
 
-struct mesh
+using namespace corgi;
+
+struct mmesh
 {
     std::vector<float>    vertices;
     std::vector<unsigned> indexes;
 };
 
-mesh build_circle(float center_x,
-                  float center_y,
-                  float radius,
-                  int   discretisation)
+mmesh build_circle(float center_x,
+                   float center_y,
+                   float radius,
+                   int   discretisation)
 {
-    mesh m;
+    mmesh m;
 
     m.vertices.reserve(discretisation * 6);
     m.indexes.reserve(discretisation * 3);
@@ -82,46 +86,31 @@ int main(int argc, char** argv)
 
     bool quit = false;
 
-    auto context = SDL_GL_CreateContext(window);
+    const auto context = SDL_GL_CreateContext(window);
 
-    gladLoadGLLoader(static_cast<GLADloadproc>(SDL_GL_GetProcAddress));
+    gladLoadGLLoader(SDL_GL_GetProcAddress);
 
     SDL_GL_MakeCurrent(window, context);
     SDL_GL_SetSwapInterval(0);
 
-    auto circle = build_circle(0, 0, 0.2f, 50);
+    renderer renderer;
+
+    const auto circle = build_circle(0, 0, 0.2f, 50);
 
     glClearColor(0.8F, 0.8F, 0.8F, 1.0F);
 
-    corgi::buffer vertex_buffer(corgi::buffer_type::array_buffer);
-    corgi::buffer index_buffer(corgi::buffer_type::element_array_buffer);
-    
+    buffer vertex_buffer(buffer_type::array_buffer);
+    buffer index_buffer(buffer_type::element_array_buffer);
+
     vertex_buffer.set_data(circle.vertices);
     index_buffer.set_data(circle.indexes);
 
-    corgi::vertex_array vao({{0, 0, 2}}, vertex_buffer, index_buffer);
+    vertex_array vao(common_attributes::pos2, vertex_buffer, index_buffer);
 
-    auto vs_str =
-        R"(
-            #version 330 core
-            layout(location = 0) in vec2 position;
-            void main() { gl_Position =  vec4(position, 0.0, 1.0); 
-        })";
+    shader vs(common_shaders::simple_2d_vertex_shader);
+    shader fs(common_shaders::simple_2d_fragment_shader);
 
-    auto fs_str =
-        R"(
-            #version 330 core
-            out vec4 color;
-            void main()
-            {
-                color	= vec4(1.0, 0.0, 1.0, 1.0);
-            }
-        )";
-
-    corgi::shader vs(vs_str, corgi::shader_type::vertex);
-    corgi::shader fs(fs_str, corgi::shader_type::fragment);
-
-    corgi::program prog(vs, fs);
+    program prog(vs, fs);
 
     while(!quit)
     {
@@ -145,6 +134,12 @@ int main(int argc, char** argv)
 
         glBindVertexArray(0);
 
+        renderer.draw(m);
+
+        // L'objectif c'est de pouvoir écrire quelque chose comme
+        // pour faire comme un mode par défaut
+        // renderer.draw_circle(1.5f, 100);
+        // ou renderer.draw(circle_mesh);
 
         prog.end();
 

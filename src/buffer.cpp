@@ -17,7 +17,7 @@ buffer::buffer(buffer&& buffer) noexcept
     buffer_type_ = buffer.buffer_type_;
 }
 
-buffer& buffer::operator=(buffer&& buffer)
+buffer& buffer::operator=(buffer&& buffer) noexcept
 {
     if(id_ != 0)
         glDeleteBuffers(1, &id_);
@@ -44,7 +44,7 @@ buffer_type buffer::buffer_type() const noexcept
     return buffer_type_;
 }
 
-void buffer::set_data(std::vector<float>& data)
+void buffer::set_data(const std::vector<float>& data)
 {
     bind();
 
@@ -63,7 +63,7 @@ void buffer::set_data(std::vector<float>& data)
     }
 }
 
-void buffer::set_data(std::vector<unsigned>& data)
+void buffer::set_data(const std::vector<unsigned>& data)
 {
     bind();
 
@@ -82,7 +82,7 @@ void buffer::set_data(std::vector<unsigned>& data)
     }
 }
 
-void buffer::bind()
+void buffer::bind() const
 {
     switch(buffer_type_)
     {
@@ -92,6 +92,20 @@ void buffer::bind()
 
         case buffer_type::element_array_buffer:
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id_);
+            break;
+    }
+}
+
+void buffer::end() const
+{
+    switch(buffer_type_)
+    {
+        case buffer_type::array_buffer:
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            break;
+
+        case buffer_type::element_array_buffer:
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
             break;
     }
 }

@@ -19,7 +19,7 @@ public:
     buffer(buffer&& buffer) noexcept;
 
     buffer& operator=(const buffer& buffer) = delete;
-    buffer& operator=(buffer&& buffer);
+    buffer& operator=(buffer&& buffer) noexcept;
 
     ~buffer();
 
@@ -30,13 +30,20 @@ public:
 
     buffer_type buffer_type() const noexcept;
 
-    void set_data(std::vector<float>& data);
-    void set_data(std::vector<unsigned>& data);
+    void set_data(const std::vector<float>& data);
+    void set_data(const std::vector<unsigned>& data);
 
     /*!
      * @brief Binds the current buffer
+     * Technically const since it doesn't changes the object
      */
-    void bind();
+    void bind() const;
+
+    /**
+     * \brief Unbind the current buffer
+     * Technically const since it doesn't changes the object
+     */
+    void end() const;
 
 private:
     unsigned           id_;
