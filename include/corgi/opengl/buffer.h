@@ -30,6 +30,7 @@ public:
 
     buffer_type buffer_type() const noexcept;
 
+
     void set_data(const std::vector<float>& data);
     void set_data(const std::vector<unsigned>& data);
 

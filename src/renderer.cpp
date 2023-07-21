@@ -2,6 +2,6 @@
 
 namespace corgi
 {
-void renderer::draw(const mesh& m) {}
+void renderer::draw([[maybe_unused]] const mesh& m) {}
 
 }    // namespace corgi

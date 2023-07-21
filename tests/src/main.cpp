@@ -134,7 +134,7 @@ int main(int argc, char** argv)
 
         glBindVertexArray(0);
 
-        renderer.draw(m);
+        //renderer.draw(m);
 
         // L'objectif c'est de pouvoir écrire quelque chose comme
         // pour faire comme un mode par défaut

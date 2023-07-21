@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 
 #include <iostream>
+#include <cassert>
 
 namespace corgi
 {
@@ -12,6 +13,8 @@ shader::shader(std::string                   source,
     , shader_type_(shader_type)
     , vertex_attributes_(std::move(vertex_attributes))
 {
+    assert(!vertex_attributes_.empty()); // Vertex attributes must not be empty
+    assert(!source_.empty()); // shader source code must not be empty
 
     create_shader();
     compile_shader();
@@ -23,6 +26,8 @@ shader::shader(const shader_content& s)
     , shader_type_(s.shader_type)
     , vertex_attributes_(s.attributes)
 {
+    assert(!vertex_attributes_.empty());    // Vertex attributes must not be empty
+    assert(!source_.empty());               // shader source code must not be empty
 
     create_shader();
     compile_shader();
@@ -56,12 +61,12 @@ void shader::create_shader()
             id_ = glCreateShader(GL_VERTEX_SHADER);
             break;
     }
+    assert("Id is equal to 0 after creation" && id_ != 0);
 }
 
 void shader::compile_shader()
 {
     auto c = source_.c_str();
-
     glShaderSource(id_, 1, &c, NULL);
     glCompileShader(id_);
 }
@@ -80,6 +85,7 @@ void shader::check_compile_status()
         glGetShaderInfoLog(id_, max_length, &max_length, &errorLog[0]);
         std::cerr << errorLog << std::endl;
         glDeleteShader(id_);
+        assert("Shader could not be compiled" && (success != GL_FALSE));
     }
     else
         success_ = true;
@@ -89,5 +95,4 @@ shader::~shader()
 {
     glDeleteShader(id_);
 }
-
 }    // namespace corgi

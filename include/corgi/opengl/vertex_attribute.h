@@ -29,7 +29,7 @@ inline int
 attributes_total_size(const std::vector<vertex_attribute>& attributes)
 {
     return std::accumulate(attributes.begin(), attributes.end(), 0,
-                           [](const auto& v) { return v.size; });
+                           [](int sum, const vertex_attribute& v) { return sum +v.size; });
 }
 
 namespace common_attributes

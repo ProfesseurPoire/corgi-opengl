@@ -2,35 +2,30 @@
 #include <glad/glad.h>
 
 #include <iostream>
+#include <cassert>
 
 namespace corgi
 {
 
 program::program(shader& vertex_shader, shader& fragment_shader)
 {
-    if(vertex_shader.vertex_attributes() != fragment_shader.vertex_attributes())
-        throw std::exception("Different vertex attribute between shaders");
+    // Shaders must share the same vertex attributes
+    assert(vertex_shader.vertex_attributes() ==
+           fragment_shader.vertex_attributes());
 
+    // Vertex shader must actually be a vertex shader
+    assert(vertex_shader.type() == shader_type::vertex);
 
-    if(vertex_shader.type() != shader_type::vertex)
-    {
-        std::cerr << "Given vertex shader isn't actually a vertex shader"
-                  << std::endl;
-
-        return;
-    }
-
-    if(fragment_shader.type() != shader_type::fragment)
-    {
-        std::cerr << "Given fragment shader isn't actually a fragment shader"
-                  << std::endl;
-        return;
-    }
+    // Fragment shader must actually be a fragment shader
+    assert(fragment_shader.type() == shader_type::fragment);
 
     vertex_shader_   = &vertex_shader;
     fragment_shader_ = &fragment_shader;
 
     id_ = glCreateProgram();
+
+    // id must be different than 0 otherwise the program isn't created
+    assert(id_ != 0);
 
     glAttachShader(id_, vertex_shader_->id());
     glAttachShader(id_, fragment_shader_->id());

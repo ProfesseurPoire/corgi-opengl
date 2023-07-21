@@ -1,5 +1,6 @@
 #include <corgi/opengl/buffer.h>
 #include <glad/glad.h>
+#include <cassert>
 
 namespace corgi
 {
@@ -46,6 +47,8 @@ buffer_type buffer::buffer_type() const noexcept
 
 void buffer::set_data(const std::vector<float>& data)
 {
+    assert("data passed to buffer is empty" && !data.empty());
+
     bind();
 
     const auto s = static_cast<GLsizei>(sizeof(float) * data.size());
@@ -65,6 +68,8 @@ void buffer::set_data(const std::vector<float>& data)
 
 void buffer::set_data(const std::vector<unsigned>& data)
 {
+    assert("data passed to buffer is empty" && !data.empty());
+
     bind();
 
     const auto s = static_cast<GLsizei>(sizeof(unsigned) * data.size());
