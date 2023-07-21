@@ -54,6 +54,11 @@ vertex_array& vertex_array::operator=(vertex_array&& other) noexcept
     return *this;
 }
 
+const std::vector<vertex_attribute>& vertex_array::vertex_attributes()const
+{
+    return vertex_attributes_;
+}
+
 vertex_array::~vertex_array()
 {
     glDeleteVertexArrays(1, &id_);
@@ -62,6 +67,11 @@ vertex_array::~vertex_array()
 void vertex_array::bind() const
 {
     glBindVertexArray(id_);
+}
+
+void vertex_array::end()const
+{
+    glBindVertexArray(0);
 }
 
 unsigned corgi::vertex_array::id() const

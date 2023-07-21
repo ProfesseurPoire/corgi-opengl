@@ -13,6 +13,7 @@
 #include <iostream>
 #include <numbers>
 #include <vector>
+#include <corgi/math/vec2.h>
 
 using namespace corgi;
 
@@ -99,13 +100,8 @@ int main(int argc, char** argv)
 
     glClearColor(0.8F, 0.8F, 0.8F, 1.0F);
 
-    buffer vertex_buffer(buffer_type::array_buffer);
-    buffer index_buffer(buffer_type::element_array_buffer);
 
-    vertex_buffer.set_data(circle.vertices);
-    index_buffer.set_data(circle.indexes);
-
-    vertex_array vao(common_attributes::pos2, vertex_buffer, index_buffer);
+    mesh mesh_circle(circle.vertices, circle.indexes, common_attributes::pos2);
 
     shader vs(common_shaders::simple_2d_vertex_shader);
     shader fs(common_shaders::simple_2d_fragment_shader);
@@ -127,21 +123,15 @@ int main(int argc, char** argv)
         }
 
         prog.use();
-        vao.bind();
-        glDrawElements(GL_TRIANGLES,
-                       static_cast<GLsizei>(circle.indexes.size()),
-                       GL_UNSIGNED_INT, (void*)0);
-
-        glBindVertexArray(0);
-
-        //renderer.draw(m);
+        renderer.draw(mesh_circle);
+        prog.end();
+        
+        // renderer.draw(m);
 
         // L'objectif c'est de pouvoir écrire quelque chose comme
         // pour faire comme un mode par défaut
         // renderer.draw_circle(1.5f, 100);
         // ou renderer.draw(circle_mesh);
-
-        prog.end();
 
         SDL_GL_SwapWindow(window);
     }

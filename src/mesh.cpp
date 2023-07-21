@@ -17,20 +17,20 @@ mesh::mesh(std::vector<float>            vertices,
     assert(!vertices_.empty());
     assert(!indexes_.empty());
 
-    assert(vertices_.size() % attributes_total_size(vertex_attributes) != 0);
+    assert(vertices_.size() % attributes_total_size(vertex_attributes) == 0);
 
     switch(primitive_)
     {
         case primitive_type::lines:
-            assert(indexes_.size() % 2 != 0);
+            assert(indexes_.size() % 2 == 0);
             break;
 
         case primitive_type::quads:
-            assert(indexes_.size() % 4 != 0);
+            assert(indexes_.size() % 4 == 0);
             break;
 
         case primitive_type::triangles:
-            assert(indexes_.size() % 3 != 0);
+            assert(indexes_.size() % 3 == 0);
             break;
     }
 
@@ -41,11 +41,122 @@ mesh::mesh(std::vector<float>            vertices,
 
     index_buffer_ = std::make_unique<buffer>(buffer_type::element_array_buffer);
     index_buffer_->bind();
-    index_buffer_->set_data(indexes);
+    index_buffer_->set_data(indexes_);
     index_buffer_->end();
 
-    vertex_array_ = std::make_unique<vertex_array>(
+    vertex_array_ = std::make_unique<corgi::vertex_array>(
         vertex_attributes, *vertex_buffer_, *index_buffer_);
+
 }
+
+bool mesh::empty()const
+{
+    return vertex_array_.get() == nullptr;
+}
+
+
+mesh::mesh(){}
+
+void mesh::copy_from(const mesh& other)
+{
+    vertices_  = other.vertices_;
+    indexes_   = other.indexes_;
+    primitive_ = other.primitive_;
+
+    vertex_buffer_ = std::make_unique<buffer>(buffer_type::array_buffer);
+    vertex_buffer_->bind();
+    vertex_buffer_->set_data(vertices_);
+    vertex_buffer_->end();
+
+    index_buffer_ = std::make_unique<buffer>(buffer_type::element_array_buffer);
+    index_buffer_->bind();
+    index_buffer_->set_data(indexes_);
+    index_buffer_->end();
+
+    vertex_array_ =
+        std::make_unique<corgi::vertex_array>(other.vertex_array_->vertex_attributes(),
+                                       *vertex_buffer_, *index_buffer_);
+}
+
+void  mesh::move_from(mesh&& other) noexcept
+{
+    vertices_  = std::move(other.vertices_);
+    indexes_   = std::move(other.indexes_);
+    primitive_ = other.primitive_;
+
+    vertex_buffer_ = std::make_unique<buffer>(buffer_type::array_buffer);
+    vertex_buffer_->bind();
+    vertex_buffer_->set_data(vertices_);
+    vertex_buffer_->end();
+
+    index_buffer_ = std::make_unique<buffer>(buffer_type::element_array_buffer);
+    index_buffer_->bind();
+    index_buffer_->set_data(indexes_);
+    index_buffer_->end();
+
+    vertex_array_ =
+        std::make_unique<corgi::vertex_array>(other.vertex_array_->vertex_attributes(),
+                                       *vertex_buffer_, *index_buffer_);
+
+    other.vertex_array_.reset();
+}
+
+const vertex_array* mesh::vertex_array()const
+{
+    return vertex_array_.get();
+}
+
+void mesh::reset()
+{
+    vertex_buffer_.reset();
+    index_buffer_.reset();
+    vertex_array_.reset();
+}
+
+mesh& mesh::operator=(const mesh& other)
+{
+    reset();
+
+    // We do nothing more but reset the mesh if the 
+    // other one is empty 
+    if(other.empty())
+        return *this;
+
+    copy_from(other);
+    return *this;
+}
+
+
+mesh& mesh::operator=(mesh&& other) noexcept
+{
+    reset();
+
+    if(other.empty())
+        return *this;
+
+    move_from(std::move(other));
+    return *this;
+}
+
+mesh::mesh(mesh&& other) noexcept
+{
+    move_from(std::move(other));
+}
+
+mesh::mesh(const mesh& other)
+{
+    copy_from(other);
+}
+
+const buffer* mesh::index_buffer()const
+{
+    return index_buffer_.get();
+}
+
+const std::vector<unsigned>& mesh::indexes()const
+{
+    return indexes_;
+}
+
 
 }    // namespace corgi

@@ -28,7 +28,10 @@ public:
 
     ~vertex_array();
 
+    const std::vector<vertex_attribute>& vertex_attributes() const;
+
     void bind() const;
+    void end() const;
 
     unsigned id() const;
 
