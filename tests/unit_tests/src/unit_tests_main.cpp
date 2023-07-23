@@ -34,7 +34,6 @@ int main(int argc, char** argv)
     const auto context = SDL_GL_CreateContext(window);
 
     SDL_GL_MakeCurrent(window, context);
-    SDL_GL_SetSwapInterval(0);
 
     gladLoadGLLoader(SDL_GL_GetProcAddress);
 

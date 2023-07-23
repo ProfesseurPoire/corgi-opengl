@@ -14,6 +14,25 @@ enum class buffer_type
     element_array_buffer
 };
 
+/**
+ * \brief Ties data to its openGL representation.
+ *
+ * Data is stored on the GPU side inside a structure called a "buffer".
+ *
+ * OpenGL provides functions to create, destroy and set the data of a buffer.
+ *
+ * The goal of this class is to make that task easier.
+ *
+ * A buffer object can have 2 states :
+ *
+ * * Empty : No GLBuffer created or associated with the buffer. Calls to bind()
+ * method will fail.
+ *
+ * * Non Empty : A GLBuffer is associated to the buffer. id_ != 0
+ *
+ * \tparam T
+ * \tparam type_
+ */
 template<class T, buffer_type type_>
 class buffer
 {
@@ -24,6 +43,12 @@ public:
      */
     buffer() {}
 
+    /**
+     * \brief Constructs a buffer object with the given data.
+     *
+     * The constructor will generate an opengl buffer, stores its id, and send
+     * data to the GPU buffer \param data
+     */
     buffer(std::vector<T> data)
         : data_(std::move(data))
     {
