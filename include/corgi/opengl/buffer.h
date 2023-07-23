@@ -47,7 +47,9 @@ public:
      * \brief Constructs a buffer object with the given data.
      *
      * The constructor will generate an opengl buffer, stores its id, and send
-     * data to the GPU buffer \param data
+     * data to the GPU buffer
+     *
+     * \param data
      */
     buffer(std::vector<T> data)
         : data_(std::move(data))
