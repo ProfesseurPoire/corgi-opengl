@@ -5,23 +5,22 @@
 
 namespace corgi
 {
-vertex_array::vertex_array(std::vector<vertex_attribute> vertex_attributes,
-                           buffer&                       vertex_buffer,
-                           buffer&                       index_buffer)
-    : vertex_buffer_(&vertex_buffer)
-    , index_buffer_(&index_buffer)
+vertex_array::vertex_array(
+    std::vector<vertex_attribute>                        vertex_attributes,
+    buffer<float, buffer_type::array_buffer>&            vertex_buffer,
+    buffer<unsigned, buffer_type::element_array_buffer>& index_buffer)
+    : vertex_buffer_(vertex_buffer)
+    , index_buffer_(index_buffer)
     , vertex_attributes_(std::move(vertex_attributes))
 {
-    assert(vertex_buffer.buffer_type() == buffer_type::array_buffer);
-    assert(index_buffer.buffer_type() == buffer_type::element_array_buffer);
     assert(!vertex_attributes_.empty());
 
     glGenVertexArrays(1, &id_);
 
     assert(id_ != 0);
     bind();
-    vertex_buffer_->bind();
-    index_buffer_->bind();
+    vertex_buffer_.bind();
+    index_buffer_.bind();
 
     for(const auto& attribute : vertex_attributes_)
     {
@@ -41,6 +40,8 @@ vertex_array::vertex_array(std::vector<vertex_attribute> vertex_attributes,
 }
 
 vertex_array::vertex_array(vertex_array&& other) noexcept
+    : vertex_buffer_(other.vertex_buffer_)
+    , index_buffer_(other.index_buffer_)
 {
     id_       = other.id_;
     other.id_ = 0;
@@ -54,7 +55,7 @@ vertex_array& vertex_array::operator=(vertex_array&& other) noexcept
     return *this;
 }
 
-const std::vector<vertex_attribute>& vertex_array::vertex_attributes()const
+const std::vector<vertex_attribute>& vertex_array::vertex_attributes() const
 {
     return vertex_attributes_;
 }
@@ -69,7 +70,7 @@ void vertex_array::bind() const
     glBindVertexArray(id_);
 }
 
-void vertex_array::end()const
+void vertex_array::end() const
 {
     glBindVertexArray(0);
 }

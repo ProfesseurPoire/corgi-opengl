@@ -1,33 +1,47 @@
 cmake_minimum_required(VERSION 3.20)
 
-
-include(FetchContent)
-
-FetchContent_Declare(
-  corgi-math
-  GIT_REPOSITORY https://github.com/ProfesseurPoire/corgi-math
-  GIT_TAG        "develop")
-
-FetchContent_MakeAvailable(corgi-math)
-
-
 project(corgi-opengl DESCRIPTION "ProjectDescription" LANGUAGES CXX VERSION 1.0.0)
-
-get_target_property(LIBA_INCLUDES corgi-math INCLUDE_DIRECTORIES)
-
-# Construct the compiler string for the include directories.
-foreach(dir ${LIBA_INCLUDES} )
-    message(warning ${dir} )
-endforeach()
 
 set(CMAKE_DEBUG_POSTFIX d)
 
+set(deps_folder "C:/deps")
+set(SDL_FOLDER "C:/deps/SDL2-2.28.1")
+
+if(MSVC)
+	add_library(SDL2 SHARED IMPORTED GLOBAL SYSTEM)
+
+	SET_PROPERTY(TARGET SDL2 
+		PROPERTY IMPORTED_LOCATION ${SDL_FOLDER}/lib/x64/SDL2.dll)
+	SET_PROPERTY(TARGET SDL2 
+		PROPERTY IMPORTED_IMPLIB  ${SDL_FOLDER}/lib/x64/SDL2.lib)
+	SET_PROPERTY(TARGET SDL2 
+		PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SDL_FOLDER}/include)
+
+	add_library(SDL2main SHARED IMPORTED GLOBAL SYSTEM)
+
+	SET_PROPERTY(TARGET SDL2main 
+		PROPERTY IMPORTED_IMPLIB  ${SDL_FOLDER}/lib/x64/SDL2main.lib)
+	SET_PROPERTY(TARGET SDL2main 
+		PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SDL_FOLDER}/include)
+
+
+    add_library(glad STATIC IMPORTED GLOBAL SYSTEM)
+
+	SET_PROPERTY(TARGET glad 
+		PROPERTY IMPORTED_LOCATION ${deps_folder}/libs/glad.lib)
+	SET_PROPERTY(TARGET glad 
+		PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${deps_folder}/glad/include)
+
+endif()
+
+
+
+
+find_package(corgi-math CONFIG)
+
 add_library(${PROJECT_NAME} STATIC "")
 
-find_package(SDL2 REQUIRED)
-find_package(glad REQUIRED)
-
-target_link_libraries(${PROJECT_NAME} PUBLIC SDL2::SDL2main glad::glad corgi-math)
+target_link_libraries(${PROJECT_NAME} PUBLIC glad corgi-math)
 
 # Setting warning level. WX and Werror means warnings are treated as errors.
 if(MSVC)

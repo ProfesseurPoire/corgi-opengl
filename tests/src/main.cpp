@@ -1,5 +1,6 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_main.h>
+#include <SDL.h>
+#include <SDL_main.h>
+#include <corgi/math/vec2.h>
 #include <corgi/opengl/buffer.h>
 #include <corgi/opengl/program.h>
 #include <corgi/opengl/renderer.h>
@@ -13,7 +14,6 @@
 #include <iostream>
 #include <numbers>
 #include <vector>
-#include <corgi/math/vec2.h>
 
 using namespace corgi;
 
@@ -56,7 +56,12 @@ mmesh build_circle(float center_x,
     return m;
 }
 
-int main(int argc, char** argv)
+#ifdef __cplusplus
+extern "C"
+#endif
+
+    int
+    main(int argc, char* argv[])
 {
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -100,7 +105,6 @@ int main(int argc, char** argv)
 
     glClearColor(0.8F, 0.8F, 0.8F, 1.0F);
 
-
     mesh mesh_circle(circle.vertices, circle.indexes, common_attributes::pos2);
 
     shader vs(common_shaders::simple_2d_vertex_shader);
@@ -125,7 +129,7 @@ int main(int argc, char** argv)
         prog.use();
         renderer.draw(mesh_circle);
         prog.end();
-        
+
         // renderer.draw(m);
 
         // L'objectif c'est de pouvoir écrire quelque chose comme
