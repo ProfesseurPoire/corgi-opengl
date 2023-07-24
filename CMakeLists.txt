@@ -28,9 +28,6 @@ if(MSVC)
 
 endif()
 
-
-
-
 find_package(corgi-math CONFIG)
 
 add_library(${PROJECT_NAME} STATIC "")
