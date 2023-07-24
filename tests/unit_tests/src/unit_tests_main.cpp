@@ -137,8 +137,11 @@ int main(int argc, char** argv)
                        // since its id is equal to zero
                        check_any_throw(buffer.bind());
 
-                       // Now trying to set data to the moved object should put
-                       // it back in a valid state
+                       // Now trying to set data to the moved from object should
+                       // put it back in a valid state
+
+                       // It's not something I'd actually want to do but that
+                       // way I avoid some potential bugs
                        buffer.set_data({1, 2});
 
                        buffer.bind();

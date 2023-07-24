@@ -2,8 +2,6 @@ name: Compiling and checking tests
 
 on:
   push:
-    branches-ignore : 
-      - main
    
 jobs:
   ubuntu-build:
