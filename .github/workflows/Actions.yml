@@ -15,7 +15,7 @@ jobs:
         run  : |
                 sudo apt-get update 
                 sudo apt-get install cppcheck 
-                git clone https://github.com/ProfesseurPoire/corgi-test -b develop
+                git clone https://github.com/ProfesseurPoire/corgi-test -b main
                 cd corgi-test
                 mkdir build
                 cd build
@@ -50,7 +50,7 @@ jobs:
 
       - name : Install Dependencies
         run  : |
-                git clone https://github.com/ProfesseurPoire/corgi-test -b develop
+                git clone https://github.com/ProfesseurPoire/corgi-test -b main
                 cd corgi-test
                 mkdir build
                 cd build
@@ -78,7 +78,7 @@ jobs:
 
       - name : Install Dependencies
         run  : |
-                git clone https://github.com/ProfesseurPoire/corgi-test -b develop
+                git clone https://github.com/ProfesseurPoire/corgi-test -b main
                 cd corgi-test
                 mkdir build
                 cd build
