@@ -37,7 +37,7 @@ public:
 
     shader_type type() const { return shader_type_; }
 
-    const std::string& source() const;
+    const std::string&                   source() const;
     const std::vector<vertex_attribute>& vertex_attributes() const;
 
 private:
@@ -50,8 +50,8 @@ private:
     /**
      * \brief We keep the content of the shader, mostly for debugging purposes
      */
-    const std::string source_;
-    shader_type shader_type_;
+    const std::string             source_;
+    shader_type                   shader_type_;
     std::vector<vertex_attribute> vertex_attributes_;
 };
 }    // namespace corgi

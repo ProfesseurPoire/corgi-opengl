@@ -1,5 +1,5 @@
-#include <SDL.h>
-#include <SDL_main.h>
+ï»¿#include <SDL2/SDL.h>
+#include <SDL2/SDL_main.h>
 #include <corgi/math/vec2.h>
 #include <corgi/opengl/buffer.h>
 #include <corgi/opengl/program.h>
@@ -132,8 +132,8 @@ extern "C"
 
         // renderer.draw(m);
 
-        // L'objectif c'est de pouvoir écrire quelque chose comme
-        // pour faire comme un mode par défaut
+        // L'objectif c'est de pouvoir ï¿½crire quelque chose comme
+        // pour faire comme un mode par dï¿½faut
         // renderer.draw_circle(1.5f, 100);
         // ou renderer.draw(circle_mesh);
 

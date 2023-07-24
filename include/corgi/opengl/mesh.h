@@ -25,7 +25,7 @@ public:
     /**
      * @brief Returns a points to the vertex array object
      */
-    const vertex_array* vertex_array() const;
+    const corgi::vertex_array* vertex_array() const;
 
     /**
      * @brief Returns the buffer that contains the mesh's indexes

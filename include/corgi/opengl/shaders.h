@@ -45,7 +45,7 @@ struct shader_content
     /**
      * @brief Type of the shader
      */
-    shader_type shader_type;
+    corgi::shader_type shader_type {corgi::shader_type::fragment};
 };
 
 namespace common_shaders

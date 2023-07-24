@@ -57,7 +57,7 @@ public:
         glGenBuffers(1, &id_);
 
         if(id_ == 0)
-            throw std::exception(
+            throw std::logic_error(
                 "buffer::buffer(std::vector<T> data, buffer_type type) : id is "
                 "equals to 0 after glGenBuffers");
 
@@ -70,8 +70,9 @@ public:
         glGenBuffers(1, &id_);
 
         if(id_ == 0)
-            throw std::exception("buffer::buffer(const buffer& other) : id is "
-                                 "equals to 0 after glGenBuffers");
+            throw std::logic_error(
+                "buffer::buffer(const buffer& other) : id is "
+                "equals to 0 after glGenBuffers");
 
         push_data();
     }
