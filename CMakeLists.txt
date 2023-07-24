@@ -24,13 +24,7 @@ if(MSVC)
 	SET_PROPERTY(TARGET SDL2main 
 		PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SDL_FOLDER}/include)
 
-
-    add_library(glad STATIC IMPORTED GLOBAL SYSTEM)
-
-	SET_PROPERTY(TARGET glad 
-		PROPERTY IMPORTED_LOCATION ${deps_folder}/libs/glad.lib)
-	SET_PROPERTY(TARGET glad 
-		PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${deps_folder}/glad/include)
+    add_subdirectory(deps/glad)
 
 endif()
 
@@ -59,7 +53,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 add_subdirectory(src)
 
 # Targets we want to export and where
-install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Targets
+install(TARGETS ${PROJECT_NAME} glad EXPORT ${PROJECT_NAME}Targets
     LIBRARY     DESTINATION lib
     RUNTIME     DESTINATION bin)
 
