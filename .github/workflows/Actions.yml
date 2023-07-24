@@ -22,9 +22,9 @@ jobs:
                 cd build
                 cmake .. -DCMAKE_BUILD_TYPE=DEBUG
                 sudo make install 
-                cd ..
+                cd ../..
                 git clone https://github.com/ProfesseurPoire/corgi-math -b main
-                cd corgi-test
+                cd corgi-math
                 mkdir build
                 cd build
                 cmake .. -DCMAKE_BUILD_TYPE=DEBUG
