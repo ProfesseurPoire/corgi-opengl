@@ -24,9 +24,13 @@ if(MSVC)
 	SET_PROPERTY(TARGET SDL2main 
 		PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${SDL_FOLDER}/include)
 
-    add_subdirectory(deps/glad)
+else()
+
+find_package(SDL2)
 
 endif()
+
+add_subdirectory(deps/glad)
 
 find_package(corgi-math CONFIG)
 
