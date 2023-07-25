@@ -157,6 +157,8 @@ public:
 
     void bind() const;
 
+    void unbind() const;
+
     /*!
      * @brief	Returns the filter used when minifying pixels
      * @return	Potential values are :
@@ -185,10 +187,10 @@ public:
     /*!
      * @brief Returns the wrap value for the t coordinate
      */
-    [[nodiscard]] wrap wrap_t() const noexcept;
+    wrap wrap_t() const noexcept;
 
-    [[nodiscard]] unsigned width() const noexcept;
-    [[nodiscard]] unsigned height() const noexcept;
+    unsigned width() const noexcept;
+    unsigned height() const noexcept;
 
     void width(unsigned width) noexcept;
     void height(unsigned height) noexcept;
@@ -277,7 +279,14 @@ public:
        height, Image::format, void * pixels);*/
 
 private:
-    // Variables
+
+    void generate_opengl_texture();
+
+    void update_gl_min_filter();
+    void update_gl_mag_filter();
+
+    void update_gl_wrap_s();
+    void update_gl_wrap_t();
 
     std::string name_;
 

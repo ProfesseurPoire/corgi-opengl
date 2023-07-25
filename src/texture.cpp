@@ -5,6 +5,42 @@
 #include <iostream>
 #include <map>
 
+
+// Made this a macro so the when I log the error, I actually knows who called
+// what
+#define check_gl_error()                                        \
+    {                                                           \
+        GLenum result;                                          \
+                                                                \
+        while((result = glGetError()) != GL_NO_ERROR)           \
+        {                                                       \
+            switch(result)                                      \
+            {                                                   \
+                case GL_INVALID_ENUM:                           \
+                    log_error("Invalid Enum");                  \
+                    break;                                      \
+                                                                \
+                case GL_INVALID_VALUE:                          \
+                    log_error("Invalid Value");                 \
+                    break;                                      \
+                                                                \
+                case GL_INVALID_OPERATION:                      \
+                    log_error("Invalid Operation");             \
+                    break;                                      \
+                                                                \
+                case GL_INVALID_FRAMEBUFFER_OPERATION:          \
+                    log_error("Invalid Framebuffer Operation"); \
+                    break;                                      \
+                                                                \
+                case GL_OUT_OF_MEMORY:                          \
+                    log_error("Out of Memory");                 \
+                    break;                                      \
+                default:                                        \
+                    break;                                      \
+            }                                                   \
+        }                                                       \
+    }
+
 using namespace corgi;
 
 static corgi::mag_filter parse_mag_filter(const std::string& str)
@@ -47,23 +83,23 @@ static corgi::wrap load_wrap(const std::string& str)
             switch(result)                                      \
             {                                                   \
                 case GL_INVALID_ENUM:                           \
-                    log_error("Invalid Enum");                  \
+                    std::cerr << "Invalid Enum" << std::endl;                  \
                     break;                                      \
                                                                 \
                 case GL_INVALID_VALUE:                          \
-                    log_error("Invalid Value");                 \
+                    std::cerr << "Invalid Value"<<std::endl;                 \
                     break;                                      \
                                                                 \
                 case GL_INVALID_OPERATION:                      \
-                    log_error("Invalid Operation");             \
+                    std::cerr << "Invalid Operation"<<std::endl;             \
                     break;                                      \
                                                                 \
                 case GL_INVALID_FRAMEBUFFER_OPERATION:          \
-                    log_error("Invalid Framebuffer Operation"); \
+                    std::cerr<<"Invalid Framebuffer Operation"<<std::endl; \
                     break;                                      \
                                                                 \
                 case GL_OUT_OF_MEMORY:                          \
-                    log_error("Out of Memory");                 \
+                    std::cerr<<"Out of Memory"<<std::endl;                 \
                     break;                                      \
                 default:                                        \
                     break;                                      \
@@ -486,8 +522,9 @@ texture::texture(const std::string& name,
     glGenTextures(1, &id_);
     std::cout << "Texture constructor for " << name << std::endl;
 
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, id_);
+    bind();
+
+
 
     /*RenderCommand::bind_texture_object(id_);
     RenderCommand::initialize_texture_object(format, internal_format, width,
@@ -500,8 +537,13 @@ texture::texture(const std::string& name,
     RenderCommand::end_texture();*/
 }
 
-void texture::bind() const
+void texture::unbind() const
 {
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void texture::bind() const
+    {
     if(id_ == 0)
         throw std::logic_error("texture::bind() : Can't bind an empty texture");
 
@@ -512,11 +554,160 @@ void texture::bind() const
     glBindTexture(GL_TEXTURE_2D, id_);
 }
 
+void texture::generate_opengl_texture()
+{
+
+    GLenum format {GL_RGBA};
+    GLint  internal_format {GL_RGBA};
+    GLenum data_type_gl {GL_UNSIGNED_BYTE};
+
+    switch(format_)
+    {
+        case corgi::format::red:
+            format = GL_RED;
+            break;
+        case corgi::format::rg:
+            format = GL_RG;
+            break;
+        case corgi::format::rgb:
+            format = GL_RGB;
+            break;
+        case corgi::format::bgr:
+            format = GL_BGR;
+            break;
+        case corgi::format::rgba:
+            format = GL_RGBA;
+            break;
+        case corgi::format::bgra:
+            format = GL_BGRA;
+            break;
+        case corgi::format::red_integer:
+            format = GL_RED_INTEGER;
+            break;
+        case corgi::format::rg_integer:
+            format = GL_RG_INTEGER;
+            break;
+        case corgi::format::rgb_integer:
+            format = GL_RGB_INTEGER;
+            break;
+        case corgi::format::bgr_integer:
+            format = GL_BGR_INTEGER;
+            break;
+        case corgi::format::rgba_integer:
+            format = GL_RGBA_INTEGER;
+            break;
+        case corgi::format::bgra_integer:
+            format = GL_BGRA_INTEGER;
+            break;
+        case corgi::format::stencil_index:
+            format = GL_STENCIL_INDEX;
+            break;
+        case corgi::format::depth_component:
+            format = GL_DEPTH_COMPONENT;
+            break;
+        case corgi::format::depth_stencil:
+            format = GL_DEPTH_STENCIL;
+            break;
+
+        default:
+            break;
+    }
+
+    switch(internal_format_)
+    {
+        case corgi::internal_format::depth_component:
+            internal_format = GL_DEPTH_COMPONENT;
+            break;
+        case corgi::internal_format::depth_stencil:
+            internal_format = GL_DEPTH_STENCIL;
+            break;
+        case corgi::internal_format::red:
+            internal_format = GL_RED;
+            break;
+        case corgi::internal_format::rg:
+            internal_format = GL_RG;
+            break;
+        case corgi::internal_format::rgb:
+            internal_format = GL_RGB;
+            break;
+        case corgi::internal_format::rgba:
+            internal_format = GL_RGBA;
+            break;
+        case corgi::internal_format::r8:
+            internal_format = GL_R8;
+            break;
+        case corgi::internal_format::r16:
+            internal_format = GL_R16;
+            break;
+        case corgi::internal_format::rg8:
+            internal_format = GL_RG8;
+            break;
+        case corgi::internal_format::rg16:
+            internal_format = GL_RG16;
+            break;
+        case corgi::internal_format::rg32_f:
+            internal_format = GL_RG32F;
+            break;
+        case corgi::internal_format::rg32_i:
+            internal_format = GL_RG32I;
+            break;
+        case corgi::internal_format::rg32_ui:
+            internal_format = GL_RG32UI;
+            break;
+        case corgi::internal_format::depth24_stencil8:
+            internal_format = GL_DEPTH24_STENCIL8;
+            break;
+        default:
+            break;
+    }
+
+    switch(data_type_)
+    {
+        case corgi::data_type::unsigned_byte:
+            data_type_gl = GL_UNSIGNED_BYTE;
+            break;
+        case corgi::data_type::byte:
+            data_type_gl = GL_BYTE;
+            break;
+        case corgi::data_type::unsigned_short:
+            data_type_gl = GL_UNSIGNED_SHORT;
+            break;
+        case corgi::data_type::short_:
+            data_type_gl = GL_SHORT;
+            break;
+        case corgi::data_type::unsigned_int:
+            data_type_gl = GL_UNSIGNED_INT;
+            break;
+        case corgi::data_type::int_:
+            data_type_gl = GL_INT;
+            break;
+        case corgi::data_type::half_float:
+            data_type_gl = GL_HALF_FLOAT;
+            break;
+        case corgi::data_type::float_:
+            data_type_gl = GL_FLOAT;
+            break;
+        case corgi::data_type::unsigned_int24_8:
+            data_type_gl = GL_UNSIGNED_INT_24_8;
+        default:
+            break;
+    }
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,                  // Level
+                 internal_format,    
+                 width_, height_,
+                 0,         // Border
+                 format,    
+                 data_type_gl,         
+                 data_      
+    );
+}
+
+
 texture::~texture()
 {
     // log_info("texture Destructor for "+name_);
     glDeleteTextures(1, &id_);
-    // RenderCommand::delete_texture_object(id_);
 }
 
 bool texture::operator==(const texture& other) const noexcept
@@ -579,18 +770,120 @@ bool texture::operator<(const texture& other) const noexcept
     return true;
 }
 
+
+void texture::update_gl_min_filter()
+{
+    switch(min_filter_)
+    {
+        case corgi::min_filter::nearest:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            break;
+        case corgi::min_filter::linear:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            break;
+        case corgi::min_filter::nearest_mipmap_nearest:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                            GL_NEAREST_MIPMAP_NEAREST);
+            break;
+        case corgi::min_filter::nearest_mipmap_linear:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                            GL_NEAREST_MIPMAP_LINEAR);
+            break;
+        case corgi::min_filter::linear_mipmap_linear:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                            GL_LINEAR_MIPMAP_LINEAR);
+            break;
+        case corgi::min_filter::linear_mipmap_nearest:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                            GL_LINEAR_MIPMAP_NEAREST);
+            break;
+    }
+    check_gl_error();
+}
+void texture::update_gl_mag_filter()
+{
+    switch(mag_filter_)
+    {
+        case corgi::mag_filter::nearest:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            break;
+        case corgi::mag_filter::linear:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            break;
+    }
+    check_gl_error();
+}
+
+void texture::update_gl_wrap_s()
+{
+    switch(wrap_s_)
+    {
+        case corgi::wrap::clamp_to_border:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                            GL_CLAMP_TO_BORDER);
+            break;
+
+        case corgi::wrap::clamp_to_edge:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            break;
+
+        case corgi::wrap::mirrored_repeat:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                            GL_MIRRORED_REPEAT);
+            break;
+
+        case corgi::wrap::mirror_clamp_to_edge:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                            GL_MIRROR_CLAMP_TO_EDGE);
+            break;
+
+        case corgi::wrap::repeat:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            break;
+    }
+    check_gl_error();
+}
+void texture::update_gl_wrap_t()
+{
+    switch(wrap_t_)
+    {
+        case corgi::wrap::clamp_to_border:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+                            GL_CLAMP_TO_BORDER);
+            break;
+
+        case corgi::wrap::clamp_to_edge:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            break;
+
+        case corgi::wrap::mirrored_repeat:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+                            GL_MIRRORED_REPEAT);
+            break;
+
+        case corgi::wrap::mirror_clamp_to_edge:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+                            GL_MIRROR_CLAMP_TO_EDGE);
+            break;
+
+        case corgi::wrap::repeat:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            break;
+    }
+    check_gl_error();
+}
 void texture::apply_changes()
 {
     if(id_ == 0)
         throw std::logic_error(
             "texture::apply_changes() : Empty texture can't apply changes");
 
-    /*RenderCommand::bind_texture_object(id_);
-    RenderCommand::texture_parameter(min_filter_);
-    RenderCommand::texture_parameter(mag_filter_);
-    RenderCommand::texture_wrap_s(wrap_s_);
-    RenderCommand::texture_wrap_t(wrap_t_);
-    RenderCommand::end_texture();*/
+    bind();
+    update_gl_mag_filter();
+    update_gl_min_filter();
+    update_gl_wrap_s();
+    update_gl_wrap_t();
+    unbind();
 }
 
 unsigned texture::id() const noexcept
