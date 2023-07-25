@@ -1,6 +1,8 @@
 #include <corgi/opengl/texture.h>
 #include <glad/glad.h>
 
+#include <filesystem>
+#include <iostream>
 #include <map>
 
 using namespace corgi;
@@ -315,7 +317,7 @@ texture::texture(create_info info)
     int max_size;
 
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_size);
-    log_info(max_size);
+    std::cout<<(max_size)<<std::endl;
 
     glTexImage2D(GL_TEXTURE_2D,
                  0,                  // Level
@@ -327,83 +329,84 @@ texture::texture(create_info info)
                  data_      // data
     );
 
-    check_gl_error();
+    //check_gl_error();
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
 }
 
 texture::texture()
 {
-    log_info("Creating new empty texture");
+    // log_info("Creating new empty texture");
+    std::cout << "Creating a new empty texture" << std::endl;
 }
 
 texture::texture(const std::string& path, const std::string& relative_path)
     : name_(relative_path.c_str())
 {
-    auto size = filesystem::size(path.c_str());
-
-#ifdef __linux__
-    FILE* fp = fopen(path.c_str(), "r");    // non-Windows use "r"
-#else
-    FILE* fp = fopen(path.c_str(), "rb");    // non-Windows use "r"
-#endif
-
-    std::vector<char> readBuffer(static_cast<unsigned int>(size));
-
-    rapidjson::FileReadStream is(fp, readBuffer.data(),
-                                 static_cast<unsigned int>(size));
-
-    rapidjson::Document document;
-    document.ParseStream(is);
-
-    assert(document.HasMember("wrap_s"));
-    assert(document.HasMember("wrap_t"));
-    assert(document.HasMember("min_filter"));
-    assert(document.HasMember("mag_filter"));
-
-    // help
-    std::string pp       = path.c_str();
-    auto        img_path = pp.substr(0, pp.size() - 4) + ".img";
-
-    std::ifstream corgi_image(img_path,
-                              std::ifstream::binary | std::ifstream::in);
-
-    int w;
-    int h;
-    int channels;
-
-    corgi_image.read(reinterpret_cast<char*>(&w), sizeof w);
-    corgi_image.read(reinterpret_cast<char*>(&h), sizeof h);
-    corgi_image.read(reinterpret_cast<char*>(&channels), sizeof channels);
-
-    unsigned char* pixels = new unsigned char[w * h * 4];
-
-    corgi_image.read(reinterpret_cast<char*>(pixels), w * h * 4);
-
-    width_      = w;
-    height_     = h;
-    min_filter_ = parse_min_filter(document["min_filter"].GetString());
-    mag_filter_ = parse_mag_filter(document["mag_filter"].GetString());
-    wrap_s_     = load_wrap(document["wrap_s"].GetString());
-    wrap_t_     = load_wrap(document["wrap_t"].GetString());
-
-    // log_info("texture Constructor for "+path);
-
-    id_ = RenderCommand::generate_texture_object();
-
-    RenderCommand::bind_texture_object(id_);
-    RenderCommand::texture_parameter(min_filter_);
-    RenderCommand::texture_parameter(mag_filter_);
-    RenderCommand::texture_wrap_s(wrap_s_);
-    RenderCommand::texture_wrap_t(wrap_t_);
-
-    RenderCommand::initialize_texture_object(
-        format::rgba, internal_format::rgba, width_, height_,
-        data_type::unsigned_byte, pixels);
-
-    RenderCommand::end_texture();
-    fclose(fp);
-    delete[] pixels;
+//    auto size = filesystem::size(path.c_str());
+//
+//#ifdef __linux__
+//    FILE* fp = fopen(path.c_str(), "r");    // non-Windows use "r"
+//#else
+//    FILE* fp = fopen(path.c_str(), "rb");    // non-Windows use "r"
+//#endif
+//
+//    std::vector<char> readBuffer(static_cast<unsigned int>(size));
+//
+//    rapidjson::FileReadStream is(fp, readBuffer.data(),
+//                                 static_cast<unsigned int>(size));
+//
+//    rapidjson::Document document;
+//    document.ParseStream(is);
+//
+//    assert(document.HasMember("wrap_s"));
+//    assert(document.HasMember("wrap_t"));
+//    assert(document.HasMember("min_filter"));
+//    assert(document.HasMember("mag_filter"));
+//
+//    // help
+//    std::string pp       = path.c_str();
+//    auto        img_path = pp.substr(0, pp.size() - 4) + ".img";
+//
+//    std::ifstream corgi_image(img_path,
+//                              std::ifstream::binary | std::ifstream::in);
+//
+//    int w;
+//    int h;
+//    int channels;
+//
+//    corgi_image.read(reinterpret_cast<char*>(&w), sizeof w);
+//    corgi_image.read(reinterpret_cast<char*>(&h), sizeof h);
+//    corgi_image.read(reinterpret_cast<char*>(&channels), sizeof channels);
+//
+//    unsigned char* pixels = new unsigned char[w * h * 4];
+//
+//    corgi_image.read(reinterpret_cast<char*>(pixels), w * h * 4);
+//
+//    width_      = w;
+//    height_     = h;
+//    min_filter_ = parse_min_filter(document["min_filter"].GetString());
+//    mag_filter_ = parse_mag_filter(document["mag_filter"].GetString());
+//    wrap_s_     = load_wrap(document["wrap_s"].GetString());
+//    wrap_t_     = load_wrap(document["wrap_t"].GetString());
+//
+//    // log_info("texture Constructor for "+path);
+//
+//    id_ = RenderCommand::generate_texture_object();
+//
+//    RenderCommand::bind_texture_object(id_);
+//    RenderCommand::texture_parameter(min_filter_);
+//    RenderCommand::texture_parameter(mag_filter_);
+//    RenderCommand::texture_wrap_s(wrap_s_);
+//    RenderCommand::texture_wrap_t(wrap_t_);
+//
+//    RenderCommand::initialize_texture_object(
+//        format::rgba, internal_format::rgba, width_, height_,
+//        data_type::unsigned_byte, pixels);
+//
+//    RenderCommand::end_texture();
+//    fclose(fp);
+//    delete[] pixels;
 }
 
 texture::texture(texture&& texture) noexcept
@@ -432,7 +435,7 @@ texture& texture::operator=(texture&& texture) noexcept
     // log_info("Move Affectation texture for "+ name_);
 
     if(id_ != 0)
-        RenderCommand::delete_texture_object(id_);
+        glDeleteTextures(1, &id_);
 
     name_       = std::move(texture.name_);
     id_         = texture.id_;
@@ -462,8 +465,8 @@ const char* texture::name() const
 texture::texture(const std::string& name,
                  unsigned           width,
                  unsigned           height,
-                 min_filter         min_f,
-                 mag_filter         mag_f,
+                 corgi::min_filter         min_f,
+                 corgi::mag_filter         mag_f,
                  wrap               wrap_s,
                  wrap               wrap_t,
                  format             format,
@@ -471,7 +474,7 @@ texture::texture(const std::string& name,
                  data_type          dt,
                  unsigned char*     data)
     : name_(name)
-    , id_(RenderCommand::generate_texture_object())
+  
     , min_filter_(min_f)
     , mag_filter_(mag_f)
     , wrap_s_(wrap_s)
@@ -479,9 +482,11 @@ texture::texture(const std::string& name,
     , width_(static_cast<unsigned short>(width))
     , height_(static_cast<unsigned short>(height))
 {
+
+    glGenTextures(1, &id_);
     // log_info("texture Constructor for "+name);
 
-    RenderCommand::bind_texture_object(id_);
+    /*RenderCommand::bind_texture_object(id_);
     RenderCommand::initialize_texture_object(format, internal_format, width,
                                              height, dt, data);
 
@@ -489,13 +494,14 @@ texture::texture(const std::string& name,
     RenderCommand::texture_parameter(mag_f);
     RenderCommand::texture_wrap_s(wrap_s);
     RenderCommand::texture_wrap_t(wrap_t);
-    RenderCommand::end_texture();
+    RenderCommand::end_texture();*/
 }
 
 texture::~texture()
 {
     // log_info("texture Destructor for "+name_);
-    RenderCommand::delete_texture_object(id_);
+    glDeleteTextures(1, &id_);
+    //RenderCommand::delete_texture_object(id_);
 }
 
 bool texture::operator==(const texture& other) const noexcept
@@ -558,22 +564,19 @@ bool texture::operator<(const texture& other) const noexcept
     return true;
 }
 
-long long texture::memory_usage() const
-{
-    return sizeof(texture) + width_ * height_ * 4;
-}
 
 void texture::apply_changes()
 {
     if(id_ == 0)
-        log_warning("Could not apply texture's changes");
+        throw std::logic_error(
+            "texture::apply_changes() : Empty texture can't apply changes");
 
-    RenderCommand::bind_texture_object(id_);
+    /*RenderCommand::bind_texture_object(id_);
     RenderCommand::texture_parameter(min_filter_);
     RenderCommand::texture_parameter(mag_filter_);
     RenderCommand::texture_wrap_s(wrap_s_);
     RenderCommand::texture_wrap_t(wrap_t_);
-    RenderCommand::end_texture();
+    RenderCommand::end_texture();*/
 }
 
 unsigned texture::id() const noexcept
@@ -581,22 +584,22 @@ unsigned texture::id() const noexcept
     return id_;
 }
 
-texture::min_filter texture::min_filter() const noexcept
+corgi::min_filter texture::min_filter() const noexcept
 {
     return min_filter_;
 }
 
-texture::mag_filter texture::mag_filter() const noexcept
+corgi::mag_filter texture::mag_filter() const noexcept
 {
     return mag_filter_;
 }
 
-texture::wrap texture::wrap_s() const noexcept
+corgi::wrap texture::wrap_s() const noexcept
 {
     return wrap_s_;
 }
 
-texture::wrap texture::wrap_t() const noexcept
+corgi::wrap texture::wrap_t() const noexcept
 {
     return wrap_t_;
 }
@@ -733,12 +736,12 @@ void texture::height(unsigned height) noexcept
 //     //image(img);
 // }
 
-void texture::min_filter(min_filter filter) noexcept
+void texture::min_filter(corgi::min_filter filter) noexcept
 {
     min_filter_ = filter;
 }
 
-void texture::mag_filter(mag_filter filter) noexcept
+void texture::mag_filter(corgi::mag_filter filter) noexcept
 {
     mag_filter_ = filter;
 }
