@@ -155,6 +155,8 @@ public:
      */
     unsigned int id() const noexcept;
 
+    void bind() const;
+
     /*!
      * @brief	Returns the filter used when minifying pixels
      * @return	Potential values are :
