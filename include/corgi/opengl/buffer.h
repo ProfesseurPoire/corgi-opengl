@@ -11,7 +11,8 @@ namespace corgi
 enum class buffer_type
 {
     array_buffer,
-    element_array_buffer
+    element_array_buffer,
+    uniform
 };
 
 /**
@@ -152,6 +153,10 @@ public:
             case buffer_type::element_array_buffer:
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id_);
                 break;
+
+            case buffer_type::uniform:
+                glBindBuffer(GL_UNIFORM_BUFFER, id_);
+                break;
         }
     }
 
@@ -174,10 +179,14 @@ public:
             case buffer_type::element_array_buffer:
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                 break;
+
+            case buffer_type::uniform:
+                glBindBuffer(GL_UNIFORM_BUFFER, 0);
+                break;
         }
     }
 
-private:
+protected:
     /**
      * \brief Pushes the data to the GPU
      */
@@ -191,7 +200,7 @@ private:
             glGenBuffers(1, &id_);
 
         bind();
-        const auto s = static_cast<GLsizei>(sizeof(float) * data_.size());
+        const auto s = static_cast<GLsizei>(sizeof(T) * data_.size());
 
         switch(type_)
         {
@@ -203,6 +212,10 @@ private:
                 glBufferData(GL_ELEMENT_ARRAY_BUFFER, s, data_.data(),
                              GL_STATIC_DRAW);
                 break;
+
+            case buffer_type::uniform:
+                glBufferData(GL_UNIFORM_BUFFER, s, data_.data(),
+                             GL_DYNAMIC_DRAW);
         }
     }
     std::vector<T> data_;

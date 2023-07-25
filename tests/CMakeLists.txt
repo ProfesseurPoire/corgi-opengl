@@ -12,7 +12,5 @@ target_link_libraries(${PROJECT_NAME} corgi-opengl SDL2 SDL2main)
 
 set_property(TARGET ${PROJECT_NAME}  PROPERTY CXX_STANDARD 20)
 
-add_test( NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
-
 add_subdirectory(unit_tests)
 

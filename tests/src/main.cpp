@@ -56,12 +56,15 @@ mmesh build_circle(float center_x,
     return m;
 }
 
-#ifdef __cplusplus
-extern "C"
-#endif
+struct f4
+{
+    float x = 1.0F;
+    float y = 0.0F;
+    float z = 0.0F;
+    float w = 1.0F;
+};
 
-    int
-    main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -81,16 +84,7 @@ extern "C"
                          SDL_WINDOWPOS_CENTERED, 500, 500, flags.to_ullong());
 
     if(!window)
-    {
         std::cout << "Could not create window" << std::endl;
-    }
-
-    SDL_Surface* window_surface = SDL_GetWindowSurface(window);
-
-    SDL_Event   e;
-    SDL_Keycode kc;
-
-    bool quit = false;
 
     const auto context = SDL_GL_CreateContext(window);
 
@@ -98,8 +92,6 @@ extern "C"
 
     SDL_GL_MakeCurrent(window, context);
     SDL_GL_SetSwapInterval(0);
-
-    renderer renderer;
 
     const auto circle = build_circle(0, 0, 0.2f, 50);
 
@@ -112,9 +104,40 @@ extern "C"
 
     program prog(vs, fs);
 
+    corgi::pipeline pipeline;
+    pipeline.program_ = &prog;
+
+    // So that way I can still update the ubo's data easily but still not the
+    // easiest thing to manipulate but hey, 3D configurable pipeline are
+    // everything but easy Since MVP matrix is kinda a given maybe it'd be nice
+    // to have at least that in every ubo. Or maybe prepare some struct for
+    // that?
+
+    // Or maybe I should keep track of the struct I have to the function.
+
+    // Whatever I end up doing for now I think that's fine on the renderer part
+
+    auto ubo = new uniform_buffer_object<f4, shader_stage::fragment>({f4()}, 2);
+
+    auto data = ubo->data();
+    // Change stuff
+    // Then feed it back ?
+    ubo->set_data(data);
+
+    // It would be nice to have a nicer syntax for this
+    // But overall ... it works!
+    pipeline.uniform_buffer_objects_.emplace_back(
+        (uniform_buffer_object_interface*)ubo);
+
+    renderer renderer;
+
+    bool quit = false;
+
     while(!quit)
     {
         glClear(GL_COLOR_BUFFER_BIT);
+
+        SDL_Event e;
 
         while(SDL_PollEvent(&e))
         {
@@ -126,17 +149,8 @@ extern "C"
             }
         }
 
-        prog.use();
+        renderer.set_pipeline(pipeline);
         renderer.draw(mesh_circle);
-        prog.end();
-
-        // renderer.draw(m);
-
-        // L'objectif c'est de pouvoir �crire quelque chose comme
-        // pour faire comme un mode par d�faut
-        // renderer.draw_circle(1.5f, 100);
-        // ou renderer.draw(circle_mesh);
-
         SDL_GL_SwapWindow(window);
     }
 

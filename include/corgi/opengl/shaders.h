@@ -53,7 +53,7 @@ namespace common_shaders
 
 const inline shader_content simple_2d_vertex_shader {common_attributes::pos2,
                                                      R"(
-            #version 330 core
+            #version 430 core
             layout(location = 0) in vec2 position;
             void main() { gl_Position =  vec4(position, 0.0, 1.0); 
         })",
@@ -61,11 +61,17 @@ const inline shader_content simple_2d_vertex_shader {common_attributes::pos2,
 
 const inline shader_content simple_2d_fragment_shader {common_attributes::pos2,
                                                        R"(
-            #version 330 core
+            #version 430 core
             out vec4 color;
+
+            layout(std140, binding = 2) uniform ubo
+            {
+ 	        vec4 main_color;
+            };
+
             void main()
             {
-                color	= vec4(1.0, 0.0, 1.0, 1.0);
+                color	= main_color;
             }
         )",
                                                        shader_type::fragment};
