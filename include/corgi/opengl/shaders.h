@@ -55,8 +55,17 @@ const inline shader_content simple_2d_vertex_shader {common_attributes::pos2,
                                                      R"(
             #version 430 core
             layout(location = 0) in vec2 position;
-            void main() { gl_Position =  vec4(position, 0.0, 1.0); 
-        })",
+
+            layout(std140, binding = 1) uniform ubo
+            {
+ 	        mat4 mvp;
+            };
+
+
+            void main() 
+            { 
+                gl_Position =  mvp *  vec4(position, 0.0, 1.0); 
+            })",
                                                      shader_type::vertex};
 
 const inline shader_content simple_2d_fragment_shader {common_attributes::pos2,
@@ -86,8 +95,13 @@ layout(location = 1) in vec2 uv;
 
 layout(location = 1) out vec2 out_uv;
 
+ layout(std140, binding = 1) uniform ubo
+{
+    mat4 mvp;
+};
+
 void main() {
-    gl_Position     =  vec4(position,0.0, 1.0);
+    gl_Position     = mvp *  vec4(position,0.0, 1.0);
     out_uv    = uv;
 })",
     shader_type::vertex};

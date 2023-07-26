@@ -9,6 +9,7 @@
 #include <corgi/opengl/shader.h>
 #include <corgi/opengl/shaders.h>
 #include <corgi/opengl/texture.h>
+#include <corgi/opengl/uniform_buffers.h>
 #include <corgi/opengl/vertex_array.h>
 #include <glad/glad.h>
 
@@ -125,6 +126,13 @@ int main(int argc, char* argv[])
 
     // Whatever I end up doing for now I think that's fine on the renderer part
 
+    const auto ortho = Matrix::ortho(-2, 2, -2, 2, -200, 200);
+
+    default_ubo def_ubo;
+
+    auto vubo = new uniform_buffer_object<default_ubo, shader_stage::vertex>(
+        {def_ubo}, 1);
+
     auto ubo = new uniform_buffer_object<f4, shader_stage::fragment>({f4()}, 2);
 
     auto data = ubo->data();
@@ -137,11 +145,15 @@ int main(int argc, char* argv[])
     pipeline.uniform_buffer_objects_.emplace_back(
         (uniform_buffer_object_interface*)ubo);
 
+    pipeline.uniform_buffer_objects_.emplace_back(
+        (uniform_buffer_object_interface*)vubo);
+
     pipeline.samplers_.push_back({&texture, 0});
     renderer renderer;
 
     bool quit = false;
 
+    float angle = 0.f;
 
     while(!quit)
     {
@@ -159,9 +171,18 @@ int main(int argc, char* argv[])
             }
         }
 
+        // Really need to make this thing a bit easier to manages
+
+        default_ubo v;
+        v.mvp = {ortho * Matrix::rotation_z(angle)};
+
+        vubo->set_data({v});
+
         renderer.set_pipeline(pipeline);
         renderer.draw(mesh);
         SDL_GL_SwapWindow(window);
+
+        angle += 0.001f;
     }
 
     SDL_Quit();
