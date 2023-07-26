@@ -2,10 +2,13 @@
 #include <SDL2/SDL_main.h>
 #include <corgi/math/vec2.h>
 #include <corgi/opengl/buffer.h>
+#include <corgi/opengl/image.h>
+#include <corgi/opengl/primitives.h>
 #include <corgi/opengl/program.h>
 #include <corgi/opengl/renderer.h>
 #include <corgi/opengl/shader.h>
 #include <corgi/opengl/shaders.h>
+#include <corgi/opengl/texture.h>
 #include <corgi/opengl/vertex_array.h>
 #include <glad/glad.h>
 
@@ -93,14 +96,19 @@ int main(int argc, char* argv[])
     SDL_GL_MakeCurrent(window, context);
     SDL_GL_SetSwapInterval(0);
 
-    const auto circle = build_circle(0, 0, 0.2f, 50);
-
     glClearColor(0.8F, 0.8F, 0.8F, 1.0F);
 
-    mesh mesh_circle(circle.vertices, circle.indexes, common_attributes::pos2);
+    image img = image::load("C:/dev/corgi-opengl/resources/majestic.png");
 
-    shader vs(common_shaders::simple_2d_vertex_shader);
-    shader fs(common_shaders::simple_2d_fragment_shader);
+    texture texture = corgi::texture(
+        "image", img.width, img.height, min_filter::linear, mag_filter::linear,
+        wrap::repeat, wrap::repeat, format::rgba, internal_format::rgba,
+        data_type::unsigned_byte, img.data.data());
+
+    mesh mesh = primitive::build_rect_pos2_uv(0.5f, 0.5f);
+
+    shader vs(common_shaders::simple_2d_texture_vertex_shader);
+    shader fs(common_shaders::simple_2d_texture_fragment_shader);
 
     program prog(vs, fs);
 
@@ -150,7 +158,12 @@ int main(int argc, char* argv[])
         }
 
         renderer.set_pipeline(pipeline);
-        renderer.draw(mesh_circle);
+
+        glActiveTexture(GL_TEXTURE0 + 0);    // Texture unit 0
+        texture.bind();
+        glUniform1i(1, texture.id());
+
+        renderer.draw(mesh);
         SDL_GL_SwapWindow(window);
     }
 

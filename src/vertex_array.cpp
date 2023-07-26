@@ -45,7 +45,6 @@ vertex_array& vertex_array::operator=(const vertex_array& other)
     vertex_attributes_ = other.vertex_attributes_;
 
     push_data();
-
     return *this;
 }
 
@@ -139,9 +138,10 @@ void vertex_array::push_data()
     {
         glEnableVertexAttribArray(attribute.location);
 
-        glVertexAttribPointer(attribute.location, attribute.size, GL_FLOAT,
-                              GL_FALSE, 0,
-                              (void*)(attribute.offset * sizeof(GL_FLOAT)));
+        glVertexAttribPointer(
+            attribute.location, attribute.size, GL_FLOAT, GL_FALSE,
+            attributes_total_size(vertex_attributes_) * sizeof(float),
+            (void*)(attribute.offset * sizeof(GL_FLOAT)));
     }
 
     glBindVertexArray(0);

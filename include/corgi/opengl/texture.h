@@ -259,8 +259,6 @@ public:
      */
     float ratio() const;
 
-    const char* name() const;
-
     /*!
      * @brief Apply the changes done to the texture
      *
@@ -279,7 +277,6 @@ public:
        height, Image::format, void * pixels);*/
 
 private:
-
     void generate_opengl_texture();
 
     void update_gl_min_filter();

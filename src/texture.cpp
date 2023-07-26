@@ -3,108 +3,40 @@
 
 #include <filesystem>
 #include <iostream>
-#include <map>
-
-
-// Made this a macro so the when I log the error, I actually knows who called
-// what
-#define check_gl_error()                                        \
-    {                                                           \
-        GLenum result;                                          \
-                                                                \
-        while((result = glGetError()) != GL_NO_ERROR)           \
-        {                                                       \
-            switch(result)                                      \
-            {                                                   \
-                case GL_INVALID_ENUM:                           \
-                    log_error("Invalid Enum");                  \
-                    break;                                      \
-                                                                \
-                case GL_INVALID_VALUE:                          \
-                    log_error("Invalid Value");                 \
-                    break;                                      \
-                                                                \
-                case GL_INVALID_OPERATION:                      \
-                    log_error("Invalid Operation");             \
-                    break;                                      \
-                                                                \
-                case GL_INVALID_FRAMEBUFFER_OPERATION:          \
-                    log_error("Invalid Framebuffer Operation"); \
-                    break;                                      \
-                                                                \
-                case GL_OUT_OF_MEMORY:                          \
-                    log_error("Out of Memory");                 \
-                    break;                                      \
-                default:                                        \
-                    break;                                      \
-            }                                                   \
-        }                                                       \
-    }
 
 using namespace corgi;
 
-static corgi::mag_filter parse_mag_filter(const std::string& str)
-{
-    static std::map<std::string, corgi::mag_filter> mag_filters = {
-        {"nearest", corgi::mag_filter::nearest},
-        {"linear", corgi::mag_filter::linear}};
-    return mag_filters.at(str);
-}
-
-static corgi::min_filter parse_min_filter(const std::string& str)
-{
-    static std::map<std::string, corgi::min_filter> min_filters_ = {
-        {"nearest", corgi::min_filter::nearest},
-        {"linear", corgi::min_filter::linear},
-        {"nearest_mipmap_nearest", corgi::min_filter::nearest_mipmap_nearest},
-        {"nearest_mipmap_linear", corgi::min_filter::nearest_mipmap_linear},
-        {"linear_mipmap_linear", corgi::min_filter::linear_mipmap_linear},
-        {"linear_mipmap_nearest", corgi::min_filter::linear_mipmap_nearest}};
-    return min_filters_.at(str);
-}
-
-static corgi::wrap load_wrap(const std::string& str)
-{
-    static std::map<std::string, corgi::wrap> wraps = {
-        {"repeat", corgi::wrap::repeat},
-        {"clamp_to_border", corgi::wrap::clamp_to_border},
-        {"clamp_to_edge", corgi::wrap::clamp_to_edge},
-        {"mirrored_repeat", corgi::wrap::mirrored_repeat},
-        {"mirror_clamp_to_edge", corgi::wrap::mirror_clamp_to_edge}};
-    return wraps.at(str);
-}
-
-#define check_gl_error()                                        \
-    {                                                           \
-        GLenum result;                                          \
-                                                                \
-        while((result = glGetError()) != GL_NO_ERROR)           \
-        {                                                       \
-            switch(result)                                      \
-            {                                                   \
-                case GL_INVALID_ENUM:                           \
+#define check_gl_error()                                                       \
+    {                                                                          \
+        GLenum result;                                                         \
+                                                                               \
+        while((result = glGetError()) != GL_NO_ERROR)                          \
+        {                                                                      \
+            switch(result)                                                     \
+            {                                                                  \
+                case GL_INVALID_ENUM:                                          \
                     std::cerr << "Invalid Enum" << std::endl;                  \
-                    break;                                      \
-                                                                \
-                case GL_INVALID_VALUE:                          \
-                    std::cerr << "Invalid Value"<<std::endl;                 \
-                    break;                                      \
-                                                                \
-                case GL_INVALID_OPERATION:                      \
-                    std::cerr << "Invalid Operation"<<std::endl;             \
-                    break;                                      \
-                                                                \
-                case GL_INVALID_FRAMEBUFFER_OPERATION:          \
-                    std::cerr<<"Invalid Framebuffer Operation"<<std::endl; \
-                    break;                                      \
-                                                                \
-                case GL_OUT_OF_MEMORY:                          \
-                    std::cerr<<"Out of Memory"<<std::endl;                 \
-                    break;                                      \
-                default:                                        \
-                    break;                                      \
-            }                                                   \
-        }                                                       \
+                    break;                                                     \
+                                                                               \
+                case GL_INVALID_VALUE:                                         \
+                    std::cerr << "Invalid Value" << std::endl;                 \
+                    break;                                                     \
+                                                                               \
+                case GL_INVALID_OPERATION:                                     \
+                    std::cerr << "Invalid Operation" << std::endl;             \
+                    break;                                                     \
+                                                                               \
+                case GL_INVALID_FRAMEBUFFER_OPERATION:                         \
+                    std::cerr << "Invalid Framebuffer Operation" << std::endl; \
+                    break;                                                     \
+                                                                               \
+                case GL_OUT_OF_MEMORY:                                         \
+                    std::cerr << "Out of Memory" << std::endl;                 \
+                    break;                                                     \
+                default:                                                       \
+                    break;                                                     \
+            }                                                                  \
+        }                                                                      \
     }
 
 texture::texture(create_info info)
@@ -379,6 +311,9 @@ texture::texture()
 texture::texture(const std::string& path, const std::string& relative_path)
     : name_(relative_path.c_str())
 {
+    (void)path;
+    (void)relative_path;
+
     //    auto size = filesystem::size(path.c_str());
     //
     // #ifdef __linux__
@@ -493,11 +428,6 @@ texture& texture::operator=(texture&& texture) noexcept
     return *this;
 }
 
-const char* texture::name() const
-{
-    return name_.c_str();
-}
-
 texture::texture(const std::string& name,
                  unsigned           width,
                  unsigned           height,
@@ -510,31 +440,30 @@ texture::texture(const std::string& name,
                  data_type          dt,
                  unsigned char*     data)
     : name_(name)
-
     , min_filter_(min_f)
     , mag_filter_(mag_f)
     , wrap_s_(wrap_s)
     , wrap_t_(wrap_t)
     , width_(static_cast<unsigned short>(width))
     , height_(static_cast<unsigned short>(height))
+    , format_(format)
+    , internal_format_(internal_format)
+    , data_type_(dt)
+    , data_(data)
 {
 
     glGenTextures(1, &id_);
-    std::cout << "Texture constructor for " << name << std::endl;
 
     bind();
 
+    generate_opengl_texture();
 
+    update_gl_mag_filter();
+    update_gl_min_filter();
+    update_gl_wrap_s();
+    update_gl_wrap_t();
 
-    /*RenderCommand::bind_texture_object(id_);
-    RenderCommand::initialize_texture_object(format, internal_format, width,
-                                             height, dt, data);
-
-    RenderCommand::texture_parameter(min_f);
-    RenderCommand::texture_parameter(mag_f);
-    RenderCommand::texture_wrap_s(wrap_s);
-    RenderCommand::texture_wrap_t(wrap_t);
-    RenderCommand::end_texture();*/
+    unbind();
 }
 
 void texture::unbind() const
@@ -543,7 +472,7 @@ void texture::unbind() const
 }
 
 void texture::bind() const
-    {
+{
     if(id_ == 0)
         throw std::logic_error("texture::bind() : Can't bind an empty texture");
 
@@ -556,7 +485,6 @@ void texture::bind() const
 
 void texture::generate_opengl_texture()
 {
-
     GLenum format {GL_RGBA};
     GLint  internal_format {GL_RGBA};
     GLenum data_type_gl {GL_UNSIGNED_BYTE};
@@ -693,16 +621,11 @@ void texture::generate_opengl_texture()
             break;
     }
     glTexImage2D(GL_TEXTURE_2D,
-                 0,                  // Level
-                 internal_format,    
-                 width_, height_,
-                 0,         // Border
-                 format,    
-                 data_type_gl,         
-                 data_      
-    );
+                 0,    // Level
+                 internal_format, width_, height_,
+                 0,    // Border
+                 format, data_type_gl, data_);
 }
-
 
 texture::~texture()
 {
@@ -712,9 +635,6 @@ texture::~texture()
 
 bool texture::operator==(const texture& other) const noexcept
 {
-    if(name_ != other.name())
-        return false;
-
     // I wonder if the id is enough here?
     if(id_ != other.id_)
         return false;
@@ -769,7 +689,6 @@ bool texture::operator<(const texture& other) const noexcept
 
     return true;
 }
-
 
 void texture::update_gl_min_filter()
 {
