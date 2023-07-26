@@ -5,6 +5,7 @@
 #include <corgi/opengl/texture.h>
 
 #include <memory>
+#include <map>
 
 namespace corgi
 {
@@ -22,8 +23,29 @@ class pipeline
 public:
     corgi::program* program_ {nullptr};
 
+    template<class T>
+    uniform_buffer_object<T>& add_ubo(unsigned location) 
+    {
+        if (uniform_buffer_objects_.contains(location))
+            throw std::logic_error(
+                "pipeline::add_ubo : Location already registered");
+
+
+        auto new_ubo = new uniform_buffer_object<T>(location);
+        
+        uniform_buffer_objects_.emplace(location, new_ubo);
+        return *new_ubo;
+    }
+
+    template<class T>
+    uniform_buffer_object<T>& get_ubo(unsigned location)
+    {
+        return *dynamic_cast<uniform_buffer_object<T>*>(
+            uniform_buffer_objects_.at(location).get());
+    }
+
     std::vector<sampler> samplers_;
-    std::vector<std::unique_ptr<uniform_buffer_object_interface>>
+    std::map<unsigned, std::unique_ptr<uniform_buffer_object_interface>>
         uniform_buffer_objects_;
 
 private:

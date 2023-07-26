@@ -9,6 +9,47 @@ namespace corgi
 
 namespace primitive
 {
+
+inline mesh build_circle_pos2_uv(float radius, int discretisation)
+{
+    std::vector<float>    vertices;
+    std::vector<unsigned> indexes;
+
+    vertices.reserve(discretisation * 12);
+    indexes.reserve(discretisation * 3);
+
+    float delta = 2.0F * std::numbers::pi_v<float> / discretisation;
+
+    for(int i = 0; i < discretisation; i++)
+    {
+        float angle  = delta * i;
+        float angle2 = delta * (i + 1);
+
+        vertices.insert(
+            vertices.end(), {0.0f, 0.0f, 0.0F, 0.0F});
+
+        vertices.insert
+        (
+            vertices.end(),
+            {
+                cosf(angle) * radius,
+                sinf(angle) * radius, 
+                cosf(angle), 
+                sinf(angle)
+            }
+        );
+
+        vertices.insert(vertices.end(), {cosf(angle2) * radius, sinf(angle2) * radius, cosf(angle), sinf(angle)});
+
+
+        indexes.push_back(i * 3);
+        indexes.push_back(i * 3 + 1);
+        indexes.push_back(i * 3 + 2);
+    }
+
+    return corgi::mesh(vertices, indexes, common_attributes::pos2_uv);
+}
+
 inline mesh build_circle_pos2(float radius, int discretisation)
 {
     std::vector<float>    vertices;

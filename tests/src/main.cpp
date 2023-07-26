@@ -68,9 +68,15 @@ struct f4
     float w = 1.0F;
 };
 
+constexpr unsigned short screen_width = 500;
+constexpr unsigned short screen_height = 500;
+
 int main(int argc, char* argv[])
 {
     SDL_Init(SDL_INIT_VIDEO);
+
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
@@ -85,7 +91,9 @@ int main(int argc, char* argv[])
 
     auto window =
         SDL_CreateWindow("dijkstra", SDL_WINDOWPOS_CENTERED,
-                         SDL_WINDOWPOS_CENTERED, 500, 500, flags.to_ullong());
+                                   SDL_WINDOWPOS_CENTERED, screen_width,
+                                   screen_height,
+                                   flags.to_ullong());
 
     if(!window)
         std::cout << "Could not create window" << std::endl;
@@ -116,45 +124,18 @@ int main(int argc, char* argv[])
     corgi::pipeline pipeline;
     pipeline.program_ = &prog;
 
-    // So that way I can still update the ubo's data easily but still not the
-    // easiest thing to manipulate but hey, 3D configurable pipeline are
-    // everything but easy Since MVP matrix is kinda a given maybe it'd be nice
-    // to have at least that in every ubo. Or maybe prepare some struct for
-    // that?
-
-    // Or maybe I should keep track of the struct I have to the function.
-
-    // Whatever I end up doing for now I think that's fine on the renderer part
-
-    const auto ortho = Matrix::ortho(-2, 2, -2, 2, -200, 200);
-
-    default_ubo def_ubo;
-
-    auto vubo = new uniform_buffer_object<default_ubo, shader_stage::vertex>(
-        {def_ubo}, 1);
-
-    auto ubo = new uniform_buffer_object<f4, shader_stage::fragment>({f4()}, 2);
-
-    auto data = ubo->data();
-    // Change stuff
-    // Then feed it back ?
-    ubo->set_data(data);
-
-    // It would be nice to have a nicer syntax for this
-    // But overall ... it works!
-    pipeline.uniform_buffer_objects_.emplace_back(
-        (uniform_buffer_object_interface*)ubo);
-
-    pipeline.uniform_buffer_objects_.emplace_back(
-        (uniform_buffer_object_interface*)vubo);
+    auto& def_ubo = pipeline.add_ubo<default_ubo>(1);
 
     pipeline.samplers_.push_back({&texture, 0});
-    renderer renderer;
+    renderer renderer(screen_width, screen_height);
+
+    glEnable(GL_MULTISAMPLE);  
+
 
     bool quit = false;
 
     float angle = 0.f;
-
+    const auto ortho = Matrix::ortho(-2, 2, -2, 2, -200, 200);
     while(!quit)
     {
         glClear(GL_COLOR_BUFFER_BIT);
@@ -171,15 +152,24 @@ int main(int argc, char* argv[])
             }
         }
 
-        // Really need to make this thing a bit easier to manages
 
-        default_ubo v;
-        v.mvp = {ortho * Matrix::rotation_z(angle)};
-
-        vubo->set_data({v});
+        // Maybe a bit cumbersome to get back the data
+        // change the value etc 
+        // Ideally it would be nice to be able to set something
+        // directly 
+        auto val = def_ubo.data().front();
+        val.mvp  = ortho * Matrix::rotation_z(angle);
+        def_ubo.set_value(val);
 
         renderer.set_pipeline(pipeline);
         renderer.draw(mesh);
+
+        renderer.set_default_color(1.0F,1.0F, 0.0F);
+        renderer.draw_default_circle_on_screen(150, 1, 70);
+
+        
+        renderer.set_default_color(1.0F, 0.0F, 1.0F);
+        renderer.draw_default_rect_on_screen(-150.0F, 0.0F, 10, 10);
         SDL_GL_SwapWindow(window);
 
         angle += 0.001f;

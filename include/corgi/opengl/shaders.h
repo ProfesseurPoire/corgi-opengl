@@ -59,6 +59,7 @@ const inline shader_content simple_2d_vertex_shader {common_attributes::pos2,
             layout(std140, binding = 1) uniform ubo
             {
  	        mat4 mvp;
+
             };
 
 
@@ -95,9 +96,11 @@ layout(location = 1) in vec2 uv;
 
 layout(location = 1) out vec2 out_uv;
 
- layout(std140, binding = 1) uniform ubo
+layout(std140, binding = 1) uniform ubo
 {
     mat4 mvp;
+    vec4 main_color;
+    int use_main_color;
 };
 
 void main() {
@@ -116,9 +119,23 @@ layout(location = 1) in vec2 uv;
 layout(location = 0) out vec4 out_color;
 layout(binding = 0) uniform sampler2D texture_sampler;
 
+layout(std140, binding = 1) uniform ubo
+{
+    mat4 mvp;
+    vec4 main_color;
+    int use_main_color;
+};
+
 void main() 
 {
-    out_color = texture(texture_sampler, uv);
+    if(use_main_color==1)
+    {
+        out_color = main_color;
+    }
+    else
+    {
+        out_color = texture(texture_sampler, uv);
+    }
 }
 
 )",

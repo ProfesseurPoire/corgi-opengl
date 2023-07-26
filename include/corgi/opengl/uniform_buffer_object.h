@@ -3,11 +3,6 @@
 namespace corgi
 {
 
-enum class shader_stage
-{
-    vertex,
-    fragment
-};
 
 class uniform_buffer_object_interface
 {
@@ -17,15 +12,28 @@ public:
 private:
 };
 
-template<class T, shader_stage stage>
+template<class T>
 class uniform_buffer_object : public buffer<T, buffer_type::uniform>,
-                              uniform_buffer_object_interface
+                              public uniform_buffer_object_interface
 {
 public:
-    uniform_buffer_object(std::vector<T> data, int location)
-        : corgi::buffer<T, buffer_type::uniform>(data)
+    uniform_buffer_object(T data, int location)
+        : corgi::buffer<T, buffer_type::uniform>({data})
         , location_(location)
     {
+    }
+
+    uniform_buffer_object(int location)
+        : corgi::buffer<T, buffer_type::uniform>({ T() })
+        , location_(location)
+    {
+
+    }
+
+    void set_value(T data) { 
+        std::vector<T> datas = {data};
+
+        this->set_data(datas);
     }
 
     void bind_uniform() override
