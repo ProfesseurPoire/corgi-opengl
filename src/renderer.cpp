@@ -31,6 +31,12 @@ void renderer::set_pipeline(corgi::pipeline& pipeline)
 
     for(auto& ubo : pipeline_->uniform_buffer_objects_)
         ubo->bind_uniform();
+
+    for(auto sampler : pipeline_->samplers_)
+    {
+        glActiveTexture(GL_TEXTURE0 + sampler.binding);    // Texture unit 0
+        sampler.texture->bind();
+    }
 }
 
 }    // namespace corgi

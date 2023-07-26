@@ -137,9 +137,11 @@ int main(int argc, char* argv[])
     pipeline.uniform_buffer_objects_.emplace_back(
         (uniform_buffer_object_interface*)ubo);
 
+    pipeline.samplers_.push_back({&texture, 0});
     renderer renderer;
 
     bool quit = false;
+
 
     while(!quit)
     {
@@ -158,11 +160,6 @@ int main(int argc, char* argv[])
         }
 
         renderer.set_pipeline(pipeline);
-
-        glActiveTexture(GL_TEXTURE0 + 0);    // Texture unit 0
-        texture.bind();
-        glUniform1i(1, texture.id());
-
         renderer.draw(mesh);
         SDL_GL_SwapWindow(window);
     }
