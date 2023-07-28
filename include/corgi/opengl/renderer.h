@@ -2,6 +2,7 @@
 
 #include <corgi/opengl/mesh.h>
 #include <corgi/opengl/pipeline.h>
+#include <corgi/opengl/color.h>
 
 namespace corgi
 {
@@ -13,6 +14,14 @@ public:
 
 
     renderer(unsigned short screen_width, unsigned short screen_height);
+
+    /**
+     * @brief Clear the color buffer bit 
+     */
+    void clear();
+
+    void set_clear_color(color color);
+    color clear_color() const noexcept;
 
     // Normally, you should set the pipeline then call draw
     void draw(const mesh& m);
@@ -42,5 +51,7 @@ private:
     std::unique_ptr<shader> default_fragment_shader_;
     std::unique_ptr<shader> default_vertex_shader_;
     std::unique_ptr<program> default_program_;
+
+    color clear_color_;
 };
 }    // namespace corgi

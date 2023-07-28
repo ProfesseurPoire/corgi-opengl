@@ -66,6 +66,11 @@ void renderer::draw_default_circle_on_screen(float x, float y, float radius)
     draw(m);
 }
 
+void renderer::clear()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
 void renderer::draw_default_rect_on_screen(float x, float y, float width, float height)
 {
     mesh m = corgi::primitive::build_rect_pos2_uv(width/2.0F, height/2.0F);
@@ -83,6 +88,14 @@ void renderer::draw_default_rect_on_screen(float x, float y, float width, float 
 
     apply_pipeline(default_pipeline_);
     draw(m);
+}
+
+void renderer::set_clear_color(color clear_color)
+{
+    glClearColor(clear_color.red(), clear_color.green(), clear_color.blue(),
+                 clear_color.alpha());
+
+    clear_color_ = clear_color;
 }
 
 void renderer::draw(const mesh& m)

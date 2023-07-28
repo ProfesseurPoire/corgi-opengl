@@ -105,8 +105,6 @@ int main(int argc, char* argv[])
     SDL_GL_MakeCurrent(window, context);
     SDL_GL_SetSwapInterval(0);
 
-    glClearColor(0.8F, 0.8F, 0.8F, 1.0F);
-
     image img = image::load("C:/dev/corgi-opengl/resources/majestic.png");
 
     texture texture = corgi::texture(
@@ -136,9 +134,12 @@ int main(int argc, char* argv[])
 
     float angle = 0.f;
     const auto ortho = Matrix::ortho(-2, 2, -2, 2, -200, 200);
+
+    renderer.set_clear_color({0.3f, 0.3F, 0.3F, 1.0F});
+
     while(!quit)
     {
-        glClear(GL_COLOR_BUFFER_BIT);
+        renderer.clear();
 
         SDL_Event e;
 

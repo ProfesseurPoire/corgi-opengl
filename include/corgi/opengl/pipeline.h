@@ -3,6 +3,7 @@
 #include <corgi/opengl/program.h>
 #include <corgi/opengl/uniform_buffer_object.h>
 #include <corgi/opengl/texture.h>
+#include <corgi/opengl/color.h>
 
 #include <memory>
 #include <map>
@@ -22,6 +23,9 @@ class pipeline
 {
 public:
     corgi::program* program_ {nullptr};
+
+    
+    color clear_color;
 
     template<class T>
     uniform_buffer_object<T>& add_ubo(unsigned location) 
@@ -49,5 +53,6 @@ public:
         uniform_buffer_objects_;
 
 private:
+
 };
 }    // namespace corgi
