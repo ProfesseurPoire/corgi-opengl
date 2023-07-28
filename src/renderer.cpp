@@ -110,14 +110,41 @@ void renderer::draw(const mesh& m)
    // pipeline_->program_->end();
 }
 
-void renderer::apply_pipeline(corgi::pipeline& pipeline)
+void renderer::apply_pipeline(corgi::pipeline& new_pipeline)
 {
-    pipeline.program_->use();
+    if (pipeline_->write_color != new_pipeline.write_color)
+    {
+        if(new_pipeline.write_color)
+            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        else
+            glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    }
 
-    for(auto& [location, ubo] : pipeline.uniform_buffer_objects_)
+    if (pipeline_->enable_depth_test != new_pipeline.enable_depth_test)
+    {
+        if(new_pipeline.enable_depth_test)
+            glEnable(GL_DEPTH_TEST);
+        else
+            glDisable(GL_DEPTH_TEST);
+    }
+
+    if(pipeline_->depth_mask != new_pipeline.depth_mask)
+    {
+        if(new_pipeline.depth_mask)
+            glDepthMask(GL_TRUE);
+        else
+            glDepthMask(GL_FALSE);
+    }
+
+    if (pipeline_->program_->id() != new_pipeline.program_->id())
+    {
+        new_pipeline.program_->use();
+    }
+
+    for(auto& [location, ubo] : new_pipeline.uniform_buffer_objects_)
         ubo->bind_uniform();
 
-    for(auto sampler : pipeline.samplers_)
+    for(auto sampler : new_pipeline.samplers_)
     {
         glActiveTexture(GL_TEXTURE0 + sampler.binding);    // Texture unit 0
         sampler.texture->bind();
@@ -126,8 +153,8 @@ void renderer::apply_pipeline(corgi::pipeline& pipeline)
 
 void renderer::set_pipeline(corgi::pipeline& pipeline)
 {
-    pipeline_ = &pipeline;
     apply_pipeline(*pipeline_);
+    pipeline_ = &pipeline;
 }
 
 }    // namespace corgi

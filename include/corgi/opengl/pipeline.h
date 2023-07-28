@@ -24,6 +24,9 @@ class pipeline
 public:
     corgi::program* program_ {nullptr};
 
+    bool write_color {true};
+    bool enable_depth_test {true};
+    bool depth_mask {false};
     
     color clear_color;
 
